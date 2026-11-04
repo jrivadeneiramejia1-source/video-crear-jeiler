@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Crea un video explicativo completo a partir de un guion.json: voz sintética, escenas animadas, subtítulos y música; en horizontal y vertical.
 
-Uso:  python crear_explicativo.py GUION.json CARPETA [--formatos horizontal,vertical] [--sin-musica] [--lufs -14] [--solo-plan] [--reusar]
+Uso:  python crear_explicativo.py GUION.json CARPETA [--formatos horizontal,vertical] [--sin-musica] [--lufs -14] [--solo-plan] [--reusar] [--hd]
   --solo-plan  arma proyecto.json y los tiempos con la voz, pero NO dibuja el video (para revisar antes de gastar tiempo de dibujo)
+  --hd         tamaño completo: horizontal 1920x1080 y vertical 1080x1920 (lo que piden Shorts y YouTube); dibuja unas 2 veces más lento
   --reusar     si en CARPETA ya están los silencio_*.mp4 de una corrida anterior con el MISMO guion y voz, no los dibuja otra vez (solo rehace audio y pegado)
 Deja en CARPETA:  voz.wav | musica.wav | audio_final.wav | proyecto.json | silencio_*.mp4 (imagen sin sonido) | video_horizontal.mp4 | video_vertical.mp4 | hoja_*.png (cuadros para mirar) | informe.txt
 Necesita las skills vecinas voz-sintetica (+ instalar_voz.sh), animacion-2d (+ instalar_render.sh) y musica-y-efectos. Usar el Python de la instalación
@@ -27,8 +28,8 @@ def volumen(ruta):
     i = re.findall(r"I:\s+(-?[\d.]+) LUFS", e); p = re.findall(r"Peak:\s+(-?[\d.]+) dBFS", e); return (float(i[-1]) if i else None), (float(p[-1]) if p else None)
 
 def main():
-    a = sys.argv[1:]; formatos = ["horizontal", "vertical"]; musica_on = "--sin-musica" not in a; solo_plan = "--solo-plan" in a; reusar = "--reusar" in a; lufs = -14.0
-    a = [x for x in a if x not in ("--sin-musica", "--solo-plan", "--reusar")]
+    a = sys.argv[1:]; formatos = ["horizontal", "vertical"]; musica_on = "--sin-musica" not in a; solo_plan = "--solo-plan" in a; reusar = "--reusar" in a; hd = "--hd" in a; lufs = -14.0
+    a = [x for x in a if x not in ("--sin-musica", "--solo-plan", "--reusar", "--hd")]
     for n in ("--formatos", "--lufs"):
         if n in a:
             i = a.index(n); v = a[i + 1]; del a[i:i + 2]
@@ -90,7 +91,7 @@ def main():
     li, pk = volumen(final_wav); L.append(f"Audio final: {li} LUFS, pico {pk} dBFS (objetivo {lufs} LUFS).")
     py = sys.executable
     for fmt in formatos:
-        w, h = FORMATOS[fmt]; sil = out / f"silencio_{fmt}.mp4"; fin = out / f"video_{fmt}.mp4"
+        w, h = FORMATOS[fmt]; w, h = (int(w * 1.5), int(h * 1.5)) if hd else (w, h); sil = out / f"silencio_{fmt}.mp4"; fin = out / f"video_{fmt}.mp4"
         if fin.exists(): sys.exit(f"{fin} ya existe: usa otra carpeta (no se sobrescribe).")
         if reusar and sil.exists(): print(f"{fmt}: se reutiliza {sil.name}"); r = subprocess.CompletedProcess([], 0, "", "")
         else: r = subprocess.run([py, str(RENDER), str(out / "_proyecto_render.json"), "video", str(sil), "--ancho", str(w), "--alto", str(h), "--extra", str(ESCENAS_JS)], capture_output=True, text=True)

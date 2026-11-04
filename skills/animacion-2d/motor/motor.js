@@ -110,9 +110,9 @@ registrarEscena('personajes', (e, tl, c) => {
   return s;
 });
 registrarEscena('texto', (e, tl, c) => {                 // tarjeta de texto grande
-  let s = fondoDecorado(c.t); const k = easeOut(seg(tl, .05, .6)), p = parrafo(W / 2, 0, e.texto, (e.tamano || 64) * U, 800, TEMA.tinta, W * .8, 'middle', 1.2);
+  let s = fondoDecorado(c.t); const k = c.primera ? 1 : easeOut(seg(tl, .05, .6)), p = parrafo(W / 2, 0, e.texto, (e.tamano || 64) * U, 800, TEMA.tinta, W * .8, 'middle', 1.2);
   s += `<g transform="translate(0 ${f(H / 2 - p.h / 2 + (1 - k) * 30)})" opacity="${f(k)}">${p.svg}</g>`;
-  if (e.detalle) s += T(W / 2, H / 2 + p.h / 2 + 50 * U, e.detalle, 32 * U, 600, TEMA.gris, 'middle', `opacity="${f(easeOut(seg(tl, .5, 1)))}"`);
+  if (e.detalle) s += T(W / 2, H / 2 + p.h / 2 + 50 * U, e.detalle, 32 * U, 600, TEMA.gris, 'middle', `opacity="${f(c.primera ? 1 : easeOut(seg(tl, .5, 1)))}"`);
   return s;
 });
 
@@ -133,10 +133,11 @@ function marca() {                                       // texto pequeño en un
 
 function render(t) {
   const es = P.escenas; const e = es.find(s => t >= s.inicio && t < s.fin) || es[es.length - 1]; const tl = t - e.inicio, dur = e.fin - e.inicio;
-  const fade = Math.min(seg(tl, 0, .35), 1 - seg(tl, dur - .35, dur));
+  const primera = es.indexOf(e) === 0;                   // la primera escena ya está completa en el cuadro 0 (es lo que se ve de miniatura)
+  const fade = Math.min(primera ? 1 : seg(tl, 0, .35), 1 - seg(tl, dur - .35, dur));
   const fn = ESCENAS[e.tipo]; if (!fn) throw new Error('Tipo de escena desconocido: ' + e.tipo + ' (hay: ' + Object.keys(ESCENAS).join(', ') + ')');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${TEMA.fondoA}"/><stop offset="1" stop-color="${TEMA.fondoB}"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#fg)"/>` +
-    `<g opacity="${f(e.sin_fundido ? 1 : fade)}">${fn(e, tl, { W, H, V, U, t, dur, TEMA })}</g>${subtitulos(t)}${marca()}</svg>`;
+    `<g opacity="${f(e.sin_fundido ? 1 : fade)}">${fn(e, tl, { W, H, V, U, t, dur, TEMA, primera })}</g>${subtitulos(t)}${marca()}</svg>`;
   document.getElementById('app').innerHTML = svg;
 }
 window.TOTAL = Math.max(...P.escenas.map(e => e.fin)); window.CUES = P.cues || []; window.render = render; window.READY = true;

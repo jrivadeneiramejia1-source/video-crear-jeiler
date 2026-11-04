@@ -15,11 +15,11 @@ function marcaVisual(m, x, y, s, color, op) {   // m: nombre de ícono, o {image
 function tituloEscena(e, tl, y) { return e.titulo ? T(W / 2, y, e.titulo, 46 * U, 800, TEMA.tinta, 'middle', `opacity="${f(easeOut(seg(tl, .05, .5)))}"`) : ''; }
 
 registrarEscena('titulo', (e, tl, c) => {
-  let s = fondoDecorado(c.t); const k = easeOut(seg(tl, .05, .7)), p = parrafo(W / 2, 0, e.texto, (V ? 66 : 70) * U, 800, TEMA.tinta, W * .84, 'middle', 1.15);
+  let s = fondoDecorado(c.t); const k = c.primera ? 1 : easeOut(seg(tl, .05, .7)), p = parrafo(W / 2, 0, e.texto, (V ? 66 : 70) * U, 800, TEMA.tinta, W * .84, 'middle', 1.15);
   const gy = H / 2 - p.h / 2 - (e.icono || e.imagen ? 70 * U : 0);
   if (e.icono || e.imagen) s += marcaVisual(e.imagen ? { imagen: e.imagen } : e.icono, W / 2, gy - 80 * U + (1 - k) * 20, 140 * U, TEMA.acento, k);
   s += `<g transform="translate(0 ${f(gy + (1 - k) * 30)})" opacity="${f(k)}">${p.svg}</g>`;
-  if (e.detalle) s += T(W / 2, gy + p.h + 56 * U, e.detalle, 34 * U, 600, TEMA.gris, 'middle', `opacity="${f(easeOut(seg(tl, .6, 1.2)))}"`);
+  if (e.detalle) s += T(W / 2, gy + p.h + 56 * U, e.detalle, 34 * U, 600, TEMA.gris, 'middle', `opacity="${f(c.primera ? 1 : easeOut(seg(tl, .6, 1.2)))}"`);
   return s;
 });
 

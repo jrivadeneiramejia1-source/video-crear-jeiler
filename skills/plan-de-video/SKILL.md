@@ -58,4 +58,4 @@ Mientras una skill «aún no exista», decirlo y proponer lo más cercano que s�
 - [ ] El plan dice qué no se podrá comprobar.
 
 ## Qué se probó (2026-11-04)
-`medir_guion.py` midió el guion del video explicativo de prueba (144 palabras, estimación de 58 s con voz sintética; falta comparar con la duración real del video) y marcó cuatro problemas de estilo en un guion malo a propósito (frase larga, punto y coma, promedio alto y duración fuera de meta). La plantilla de plan se usó para el explicativo de prueba. **Falta** usarla con un pedido real de Jeiler y calibrar los ritmos con más voces (los 0,40 y 0,52 s por palabra salen de pruebas anteriores).
+`medir_guion.py` midió el guion del video explicativo de prueba (144 palabras, estimación de 58 s con voz sintética; el video real salió de 58,57 s) y marcó cuatro problemas de estilo en un guion malo a propósito (frase larga, punto y coma, promedio alto y duración fuera de meta). La plantilla de plan se usó para el explicativo de prueba. **Falta** usarla con un pedido real de Jeiler y calibrar los ritmos con más voces (los 0,40 y 0,52 s por palabra salen de pruebas anteriores).
