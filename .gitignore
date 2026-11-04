@@ -1,0 +1,18 @@
+# Este repo es PÚBLICO: nunca subir datos de personas ni material de trabajo.
+node_modules/
+.env
+.env.*
+*.jks
+*.keystore
+# Audios, videos y entregas (pueden tener voces, caras o nombres reales)
+entregas/
+privado/
+*.opus
+*.m4a
+*.mp3
+*.wav
+*.mp4
+*.mov
+*.mkv
+*.webm
+.DS_Store

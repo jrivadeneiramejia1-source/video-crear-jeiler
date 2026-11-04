@@ -1,0 +1,2 @@
+# Grupos que se instalan solos al abrir una sesión en la nube. Uno por línea.
+# (vacío por ahora: todavía no hay skills)
