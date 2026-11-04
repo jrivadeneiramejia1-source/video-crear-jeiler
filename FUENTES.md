@@ -5,6 +5,8 @@ Cada fila dice de dónde viene una skill, qué versión se copió y con qué lic
 | Skills | Origen | Commit copiado | Fecha | Licencia |
 |---|---|---|---|---|
 
+**Sin skills de terceros copiadas en la fase 4.** Lo que usan las skills al correr (no está en el repo): `kokoro-onnx` (MIT) y los archivos del modelo Kokoro 82M de `thewh1teagle/kokoro-onnx` (Apache-2.0 el modelo), `playwright` (Apache-2.0) con Chromium, `numpy` y `soundfile`. `animacion-2d` sigue el método del kit de cortometraje de Jeiler, pero su código es nuevo.
+
 ## Revisar si hay versiones nuevas (cada mes)
 ```bash
 python3 -I comparar-fuentes.py

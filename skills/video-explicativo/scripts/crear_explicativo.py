@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Crea un video explicativo completo a partir de un guion.json: voz sintética, escenas animadas, subtítulos y música; en horizontal y vertical.
 
-Uso:  python crear_explicativo.py GUION.json CARPETA [--formatos horizontal,vertical] [--sin-musica] [--lufs -14] [--solo-plan]
+Uso:  python crear_explicativo.py GUION.json CARPETA [--formatos horizontal,vertical] [--sin-musica] [--lufs -14] [--solo-plan] [--reusar]
   --solo-plan  arma proyecto.json y los tiempos con la voz, pero NO dibuja el video (para revisar antes de gastar tiempo de dibujo)
-Deja en CARPETA:  voz.wav | musica.wav | proyecto.json | video_horizontal.mp4 | video_vertical.mp4 | hoja_*.png (cuadros para mirar) | informe.txt
+  --reusar     si en CARPETA ya están los silencio_*.mp4 de una corrida anterior con el MISMO guion y voz, no los dibuja otra vez (solo rehace audio y pegado)
+Deja en CARPETA:  voz.wav | musica.wav | audio_final.wav | proyecto.json | silencio_*.mp4 (imagen sin sonido) | video_horizontal.mp4 | video_vertical.mp4 | hoja_*.png (cuadros para mirar) | informe.txt
 Necesita las skills vecinas voz-sintetica (+ instalar_voz.sh), animacion-2d (+ instalar_render.sh) y musica-y-efectos. Usar el Python de la instalación
 (~/.cache/video-jeiler/venv/bin/python). Formato del guion: ver ejemplo/guion.json y SKILL.md. Es voz sintética: declararlo al publicar."""
 import importlib.util, json, os, pathlib, re, subprocess, sys, base64, mimetypes
@@ -26,8 +27,8 @@ def volumen(ruta):
     i = re.findall(r"I:\s+(-?[\d.]+) LUFS", e); p = re.findall(r"Peak:\s+(-?[\d.]+) dBFS", e); return (float(i[-1]) if i else None), (float(p[-1]) if p else None)
 
 def main():
-    a = sys.argv[1:]; formatos = ["horizontal", "vertical"]; musica_on = "--sin-musica" not in a; solo_plan = "--solo-plan" in a; lufs = -14.0
-    a = [x for x in a if x not in ("--sin-musica", "--solo-plan")]
+    a = sys.argv[1:]; formatos = ["horizontal", "vertical"]; musica_on = "--sin-musica" not in a; solo_plan = "--solo-plan" in a; reusar = "--reusar" in a; lufs = -14.0
+    a = [x for x in a if x not in ("--sin-musica", "--solo-plan", "--reusar")]
     for n in ("--formatos", "--lufs"):
         if n in a:
             i = a.index(n); v = a[i + 1]; del a[i:i + 2]
@@ -85,16 +86,17 @@ def main():
     p1 = subprocess.run(["ffmpeg", "-v", "info", "-nostdin", "-i", str(pre), "-af", f"loudnorm=I={lufs}:TP=-1.5:LRA=9:print_format=json", "-f", "null", "-"], capture_output=True, text=True).stderr
     m = json.loads(re.search(r'\{[^{}]*"input_i"[^{}]*\}', p1, re.S).group(0))
     ln = f"loudnorm=I={lufs}:TP=-1.5:LRA=9:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true"
-    final_wav = out / "audio_final.wav"; subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(pre), "-af", ln, "-ar", "48000", "-c:a", "pcm_s16le", str(final_wav)], check=True); pre.unlink()
+    final_wav = out / "audio_final.wav"; subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(pre), "-af", ln + f",apad=whole_dur={total:.3f}", "-ar", "48000", "-c:a", "pcm_s16le", str(final_wav)], check=True); pre.unlink()   # se rellena con silencio hasta el final del video (créditos)
     li, pk = volumen(final_wav); L.append(f"Audio final: {li} LUFS, pico {pk} dBFS (objetivo {lufs} LUFS).")
     py = sys.executable
     for fmt in formatos:
-        w, h = FORMATOS[fmt]; sil = out / f"_silencio_{fmt}.mp4"; fin = out / f"video_{fmt}.mp4"
+        w, h = FORMATOS[fmt]; sil = out / f"silencio_{fmt}.mp4"; fin = out / f"video_{fmt}.mp4"
         if fin.exists(): sys.exit(f"{fin} ya existe: usa otra carpeta (no se sobrescribe).")
-        r = subprocess.run([py, str(RENDER), str(out / "_proyecto_render.json"), "video", str(sil), "--ancho", str(w), "--alto", str(h), "--extra", str(ESCENAS_JS)], capture_output=True, text=True)
-        print(r.stdout.strip()[-300:]);
+        if reusar and sil.exists(): print(f"{fmt}: se reutiliza {sil.name}"); r = subprocess.CompletedProcess([], 0, "", "")
+        else: r = subprocess.run([py, str(RENDER), str(out / "_proyecto_render.json"), "video", str(sil), "--ancho", str(w), "--alto", str(h), "--extra", str(ESCENAS_JS)], capture_output=True, text=True)
+        print(r.stdout.strip()[-300:])
         if r.returncode != 0: sys.exit("Falló el dibujo:\n" + (r.stdout + r.stderr)[-1200:])
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(sil), "-i", str(final_wav), "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", str(fin)], check=True); sil.unlink()
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(sil), "-i", str(final_wav), "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-t", f"{total:.3f}", "-movflags", "+faststart", str(fin)], check=True)
         d = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(fin)], capture_output=True, text=True).stdout)
         subprocess.run([py, str(RENDER), str(out / "_proyecto_render.json"), "hoja", str(out / f"hoja_{fmt}.png"), "--ancho", str(w), "--alto", str(h), "--extra", str(ESCENAS_JS), "--n", "8"], capture_output=True)
         L.append(f"{fmt}: {fin.name} {w}x{h}, {d:.2f} s (esperado {total:.2f} s)" + ("" if abs(d - total) < 0.5 else "  <-- REVISAR la duración"))

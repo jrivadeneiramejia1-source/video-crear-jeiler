@@ -14,5 +14,8 @@ Base creada el 2026-11-04. Todavía no hay skills de terceros en este repo.
 - `.gitignore` bloquea audios, videos y las carpetas `entregas/` y `privado/` como red de seguridad, pero no reemplaza la revisión a mano antes de cada commit.
 - Archivos de comunidades indígenas: no se modifican ni se suben a servicios externos.
 
-## Resultado
-- Sin skills todavía: nada que revisar. Cada fase anota aquí qué se revisó y qué se encontró.
+## Resultado (fase 4)
+- **Sin código de terceros copiado.** Los scripts propios solo llaman a ffmpeg, a Chromium sin pantalla y a modelos locales.
+- **Internet:** solo `instalar_voz.sh` (github.com: modelos de Kokoro; pypi.org: paquetes) e `instalar_render.sh` (pypi.org; y el sitio de Playwright si no hay ningún Chromium). El resto corre sin conexión. Los instaladores usan un Python propio (`~/.cache/video-jeiler/venv`) y no tocan el del sistema. No verifican una huella de los modelos descargados: pendiente.
+- **Privacidad:** el motor y los ejemplos usan personajes y textos inventados; el kit original de Jeiler (con nombres e historias reales) se quedó fuera del repo. `crear_explicativo.py` incrusta imágenes del guion dentro de un archivo temporal para dibujarlas; no sube nada.
+- **Búsqueda de patrones de riesgo** (`curl | sh`, `eval`, `exec`, `os.system`, `shell=True`, `sudo`): ninguno. **gitleaks:** 0 hallazgos.

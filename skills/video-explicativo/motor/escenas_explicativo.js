@@ -24,33 +24,40 @@ registrarEscena('titulo', (e, tl, c) => {
 });
 
 registrarEscena('lista', (e, tl, c) => {
-  let s = fondoDecorado(c.t) + tituloEscena(e, tl, H * .16); const items = e.items, n = items.length, size = (V ? 44 : 42) * U, rowH = Math.min(150 * U, (H * (V ? .62 : .6)) / n);
-  const y0 = H * (e.titulo ? (V ? .26 : .3) : .22), x0 = W * (V ? .08 : .14), maxW = W * (V ? .70 : .66);
+  let s = fondoDecorado(c.t) + tituloEscena(e, tl, H * .16); const items = e.items, n = items.length, size = (V ? 42 : 40) * U, maxW = W * (V ? .70 : .64), x0 = W * (V ? .08 : .14), gap = 22 * U;
+  const L = items.map(it => envolver(it, size, 700, maxW)), hs = L.map(l => Math.max(88 * U, l.length * size * 1.25 + 36 * U)), total = hs.reduce((p, q) => p + q, 0) + gap * (n - 1);
+  const top = H * (e.titulo ? .22 : .1), area = H * (V ? .56 : .66); let y = top + Math.max(0, (area - total) / 2);   // las tarjetas se apilan según su altura real (no se pisan)
   items.forEach((it, i) => {
-    const q = easeOut(seg(tl, revela(e, i, n, c.dur), revela(e, i, n, c.dur) + .5)); if (q <= 0) return;
-    const y = y0 + i * rowH, ls = envolver(it, size, 700, maxW), h = Math.max(rowH * .86, ls.length * size * 1.25 + 24 * U);
-    s += `<g transform="translate(${f((1 - q) * -60 * U)} 0)" opacity="${f(q)}">${tarjeta(x0 - 24 * U, y - h * .1, W - 2 * x0 + 48 * U, h, '#fff', TEMA.suave)}${icono('check', x0 + 30 * U, y + h * .4, 56 * U, TEMA.acento2)}`;
-    ls.forEach((l, j) => { s += T(x0 + 80 * U, y + h * .4 + size * .34 + (j - (ls.length - 1) / 2) * size * 1.25, l, size, 700, TEMA.tinta); }); s += '</g>';
+    const t0 = revela(e, i, n, c.dur), q = easeOut(seg(tl, t0, t0 + .5)), h = hs[i];
+    if (q > 0) {
+      s += `<g transform="translate(${f((1 - q) * -60 * U)} 0)" opacity="${f(q)}">${tarjeta(x0 - 24 * U, y, W - 2 * x0 + 48 * U, h, '#fff', TEMA.suave)}${icono('check', x0 + 30 * U, y + h / 2, 56 * U, TEMA.acento2)}`;
+      L[i].forEach((l, j) => { s += T(x0 + 80 * U, y + h / 2 + size * .34 + (j - (L[i].length - 1) / 2) * size * 1.25, l, size, 700, TEMA.tinta); }); s += '</g>';
+    }
+    y += h + gap;
   });
   return s;
 });
 
 registrarEscena('comparar', (e, tl, c) => {
-  let s = fondoDecorado(c.t) + tituloEscena(e, tl, H * .13); const lados = [e.izquierda, e.derecha], cols = [TEMA.acento, TEMA.acento2];
-  const cw = V ? W * .86 : W * .42, ch = V ? H * .34 : H * .62, pos = V ? [[W * .07, H * .2], [W * .07, H * .58]] : [[W * .06, H * .22], [W * .52, H * .22]];
+  let s = fondoDecorado(c.t) + tituloEscena(e, tl, H * .12); const lados = [e.izquierda, e.derecha], cols = [TEMA.acento, TEMA.acento2], cw = V ? W * .86 : W * .42;
+  let size = (V ? 30 : 31) * U; const alto = k => { const hs = lados.map(L => 86 * U + 24 * U + L.puntos.reduce((p, pt) => p + envolver(pt, k, 600, cw - 120 * U).length * k * 1.2 + 18 * U, 0) + 16 * U); return Math.max(...hs); };
+  let ch = alto(size); const tope = V ? H * .30 : H * .62; if (ch > tope) { size *= tope / ch * .95; ch = alto(size); }
+  const y0 = V ? H * .17 : H * .5 - ch / 2 + H * .03, pos = V ? [[W * .07, y0], [W * .07, y0 + ch + 28 * U]] : [[W * .06, y0], [W * .52, y0]];
   lados.forEach((L, i) => {
     const t0 = revela(e, i, 2, c.dur), q = easeOut(seg(tl, t0, t0 + .6)); if (q <= 0) return; const [x, y] = pos[i];
-    s += `<g transform="translate(0 ${f((1 - q) * (V ? 40 : 0) * U)}) translate(${f((1 - q) * (V ? 0 : (i ? 60 : -60)) * U)} 0)" opacity="${f(q)}">${tarjeta(x, y, cw, ch, '#fff', cols[i])}`;
+    s += `<g transform="translate(${f((1 - q) * (V ? 0 : (i ? 60 : -60)) * U)} ${f((1 - q) * (V ? 40 : 0) * U)})" opacity="${f(q)}">${tarjeta(x, y, cw, ch, '#fff', cols[i])}`;
     s += `<rect x="${f(x)}" y="${f(y)}" width="${f(cw)}" height="${f(86 * U)}" rx="${f(28 * U)}" fill="${cols[i]}"/><rect x="${f(x)}" y="${f(y + 50 * U)}" width="${f(cw)}" height="${f(36 * U)}" fill="${cols[i]}"/>`;
     s += marcaVisual(L.imagen ? { imagen: L.imagen } : L.icono, x + 52 * U, y + 43 * U, 54 * U, '#fff');
     s += T(x + (L.icono || L.imagen ? 96 * U : cw / 2), y + 56 * U, L.titulo, 36 * U, 800, '#fff', L.icono || L.imagen ? 'start' : 'middle');
-    const size = 31 * U, n = L.puntos.length, avail = ch - 86 * U - 24 * U, step = Math.min(size * 2.2, avail / n);
-    L.puntos.forEach((pt, j) => { const pq = easeOut(seg(tl, t0 + .35 + j * .55, t0 + .8 + j * .55)); if (pq <= 0) return;
-      const ls = envolver(pt, size, 600, cw - 120 * U); s += `<g opacity="${f(pq)}">${icono(L.malo ? 'cruz' : 'check', x + 40 * U, y + 86 * U + 24 * U + step * j + size * .5, 34 * U, cols[i])}`;
-      ls.forEach((l, k) => { s += T(x + 72 * U, y + 86 * U + 24 * U + step * j + size * .85 + k * size * 1.2, l, size, 600, TEMA.tinta); }); s += '</g>'; });
+    let yy = y + 86 * U + 24 * U;
+    L.puntos.forEach((pt, j) => {
+      const ls = envolver(pt, size, 600, cw - 120 * U), h = ls.length * size * 1.2 + 18 * U, pq = easeOut(seg(tl, t0 + .35 + j * .55, t0 + .8 + j * .55));
+      if (pq > 0) { s += `<g opacity="${f(pq)}">${icono(L.malo ? 'cruz' : 'check', x + 40 * U, yy + size * .55, 34 * U, cols[i])}`; ls.forEach((l, k) => { s += T(x + 72 * U, yy + size * .85 + k * size * 1.2, l, size, 600, TEMA.tinta); }); s += '</g>'; }
+      yy += h;
+    });
     s += '</g>';
   });
-  if (!V) s += `<g opacity="${f(easeOut(seg(tl, .8, 1.3)))}">${icono('flecha', W / 2, H * .52, 70 * U, TEMA.suave)}</g>`;
+  if (!V) s += `<g opacity="${f(easeOut(seg(tl, .8, 1.3)))}">${icono('flecha', W / 2, H * .5, 70 * U, TEMA.suave)}</g>`;
   return s;
 });
 
@@ -71,10 +78,10 @@ registrarEscena('pasos', (e, tl, c) => {
     ps.forEach((p, i) => { const q = easeOut(seg(tl, revela(e, i, n, c.dur), revela(e, i, n, c.dur) + .5)); if (q <= 0) return; const y = y0 + i * step;
       s += `<g opacity="${f(q)}" transform="translate(${f((1 - q) * 40 * U)} 0)"><circle cx="${f(W * .16)}" cy="${f(y)}" r="${f(40 * U)}" fill="${TEMA.acento}"/>${T(W * .16, y + 16 * U, i + 1, 46 * U, 800, '#fff', 'middle')}${parrafo(W * .16 + 70 * U, y - size * .75, p, size, 700, TEMA.tinta, W * .62, 'start').svg}</g>`; });
   } else {
-    const y = H * .42, x0 = W * .12, dx = (W - 2 * x0) / Math.max(n - 1, 1);
+    const y = H * .42, x0 = W * .17, dx = (W - 2 * x0) / Math.max(n - 1, 1), mw = Math.min(dx * .92, 330 * U);   // márgenes para que el texto del primero y del último quepan
     s += `<rect x="${f(x0)}" y="${f(y - 4 * U)}" width="${f(W - 2 * x0)}" height="${f(8 * U)}" fill="${TEMA.suave}" opacity=".6"/>`;
     ps.forEach((p, i) => { const q = easeOut(seg(tl, revela(e, i, n, c.dur), revela(e, i, n, c.dur) + .5)); if (q <= 0) return; const x = n === 1 ? W / 2 : x0 + i * dx;
-      s += `<g opacity="${f(q)}" transform="translate(0 ${f((1 - q) * 30 * U)})"><circle cx="${f(x)}" cy="${f(y)}" r="${f(46 * U)}" fill="${TEMA.acento}"/>${T(x, y + 18 * U, i + 1, 52 * U, 800, '#fff', 'middle')}${parrafo(x, y + 80 * U, p, size, 700, TEMA.tinta, Math.min(dx * .9, 330 * U), 'middle').svg}</g>`; });
+      s += `<g opacity="${f(q)}" transform="translate(0 ${f((1 - q) * 30 * U)})"><circle cx="${f(x)}" cy="${f(y)}" r="${f(46 * U)}" fill="${TEMA.acento}"/>${T(x, y + 18 * U, i + 1, 52 * U, 800, '#fff', 'middle')}${parrafo(x, y + 80 * U, p, size, 700, TEMA.tinta, mw, 'middle').svg}</g>`; });
   }
   return s;
 });
