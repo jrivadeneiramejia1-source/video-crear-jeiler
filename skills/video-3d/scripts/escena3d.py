@@ -73,6 +73,8 @@ def construir_escenario(E, ids):
     for j in range(ny):    # paredes laterales
         importar_obj(MUEBLES / "wall.obj", (-W / 2, -L / 2 + (j + 1) * 2, 0), 90, 1, False, f"pared_izq_{j}")
         importar_obj(MUEBLES / "wall.obj", (W / 2, -L / 2 + j * 2, 0), -90, 1, False, f"pared_der_{j}")
+    if c.get("techo", True):    # techo: sin él, las tomas de abajo hacia arriba muestran el cielo sobre la pared
+        bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 0, 12.9 * ESC)); t = bpy.context.object; t.scale = (W + .4, L + .4, 1); t.name = "techo"; t.data.materials.append(material("techo", c.get("techo_color", "#F3E7D3"), .95))
     for k, p in enumerate(E.get("piezas", [])):
         a = importar_obj(MUEBLES / f"{p['pieza']}.obj", (p["x"], p["y"], p.get("z", 0)), p.get("giro", 0), p.get("esc", 1.0), True, p.get("id", f"{p['pieza']}_{k}")); ids[a.name] = a
     ex = E.get("exterior", {}); y0 = L / 2 + 0.2
@@ -258,7 +260,7 @@ def gesto(arm, nombre, t, a, b):
 
 def posar(P, s, t, cfg_t):
     """Deja al personaje en la pose del instante t (segundos) de la toma, según lo que diga la toma."""
-    an = P["ancla"]; arm = P["arm"]; p0 = vec(cfg_t["pos"]); p1 = vec(cfg_t.get("hasta", cfg_t["pos"])); dur = s["dur"]; u = suave(t / dur) if "hasta" in cfg_t else 0
+    an = P["ancla"]; arm = P["arm"]; p0 = vec(cfg_t["pos"]); p1 = vec(cfg_t.get("hasta", cfg_t["pos"])); dur = s.get("dur_total", s["dur"]); u = suave(t / dur) if "hasta" in cfg_t else 0
     p = p0.lerp(p1, u); an.location = p
     if "mira_a" in cfg_t:
         d = vec(cfg_t["mira_a"]) - p; rz = math.atan2(d.x, -d.y)
@@ -299,9 +301,9 @@ def actualizar_exterior(ids, a, b, m, t, sol_energia=None):
 def revisar_cuadro(H, ids, cam, E, personajes, avisos):
     sc = bpy.context.scene
     for s in H["tomas"]:
-        poner_camara(cam, s["camara"], 0.0, s["dur"]); bpy.context.view_layer.update(); a, b, m = cielo_en(s, 0.0)
+        t0 = s.get("t_ini", 0.0); poner_camara(cam, s["camara"], t0, s.get("dur_total", s["dur"])); bpy.context.view_layer.update(); a, b, m = cielo_en(s, t0)
         for pid, P in personajes.items():
-            if pid in s.get("personajes", {}): posar(P, s, 0.0, s["personajes"][pid])
+            if pid in s.get("personajes", {}): posar(P, s, t0, s["personajes"][pid])
         for nombre in s.get("muestra", []):
             objetivo = None
             if nombre in personajes and nombre in s.get("personajes", {}): objetivo = personajes[nombre]["ancla"].location + Vector((0, 0, personajes[nombre]["cfg"].get("altura", 1.3) * (0.88 if str(s["id"]).endswith("rostro") or str(s["id"]).endswith("rostro_perfil") else 0.5)))
@@ -314,6 +316,11 @@ def revisar_cuadro(H, ids, cam, E, personajes, avisos):
             if objetivo is None: avisos.append(f"toma {s['id']}: «{nombre}» no existe en la escena."); continue
             c = world_to_camera_view(sc, cam, objetivo)
             if not (0.02 < c.x < 0.98 and 0.02 < c.y < 0.98 and c.z > 0): avisos.append(f"toma {s['id']}: «{nombre}» NO se ve dentro del cuadro (posición en pantalla {c.x:.2f},{c.y:.2f}).")
+            elif nombre in personajes and nombre in s.get("personajes", {}) and s.get("plano") not in ("medio", "cerca") and not str(s["id"]).endswith("rostro") and not str(s["id"]).endswith("rostro_perfil"):
+                an = personajes[nombre]["ancla"].location; al = personajes[nombre]["cfg"].get("altura", 1.3)    # cuerpo completo: pies y cabeza dentro del cuadro (si no, poner "plano": "medio")
+                for parte, z in (("los pies", 0.0), ("la cabeza", al * 0.97)):
+                    q = world_to_camera_view(sc, cam, Vector((an.x, an.y, z)))
+                    if not (0.01 < q.y < 0.99): avisos.append(f"toma {s['id']}: «{nombre}» sale cortado: {parte} quedan fuera del cuadro (si es un plano medio a propósito, poner \"plano\": \"medio\" en la toma).")
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); p.add_argument("historia"); p.add_argument("salida")
@@ -345,7 +352,8 @@ def main():
     else: print("Revisión de «muestra»: todo lo que dice el cuento se ve en el cuadro.", flush=True)
     if a.solo_revisar: (out / "informe.txt").write_text("\n".join(L) + "\n", encoding="utf-8"); return
     def dibujar(s, t, ruta):
-        ca, cb, m = cielo_en(s, t); poner_cielo(W, sol, ca, cb, m); actualizar_exterior(ids, ca, cb, m, t); poner_camara(cam, s["camara"], t, s["dur"])
+        t = t + s.get("t_ini", 0.0)    # una toma partida en tramos (cuando cambia quien habla) sigue su recorrido de cámara y de personajes
+        ca, cb, m = cielo_en(s, t); poner_cielo(W, sol, ca, cb, m); actualizar_exterior(ids, ca, cb, m, t); poner_camara(cam, s["camara"], t, s.get("dur_total", s["dur"]))
         for pid, P in personajes.items():
             if pid in s.get("personajes", {}): posar(P, s, t, s["personajes"][pid]); [setattr(o, "hide_render", False) for o in [P["ancla"]] + P["mallas"]]
             else: [setattr(o, "hide_render", True) for o in [P["ancla"]] + P["mallas"]]
