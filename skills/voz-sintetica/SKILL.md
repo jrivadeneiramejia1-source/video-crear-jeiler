@@ -40,3 +40,10 @@ PY=~/.cache/video-jeiler/venv/bin/python
 
 ## Qué se probó (2026-11-04)
 El instalador real bajó los modelos (325 MB y 28 MB) y el Python propio sin errores. Una narración de prueba de 115 palabras salió a unos 0,40 s por palabra con pausas, y un reconocedor automático entendió el 98,3 % de sus palabras (una medida de claridad, no de naturalidad). Se probaron las tres voces de español listadas, la velocidad y los tiempos por frase. **No se probó** con textos muy largos, con números ni siglas, ni con oyentes: cómo suena lo decide Jeiler. Licencias: Kokoro (Apache-2.0) y `kokoro-onnx` (MIT), según sus repositorios.
+
+## Otras voces gratis (probadas en la versión 2 de «Lila y el arcoíris»)
+- **Piper** (`bash scripts/instalar_piper.sh`): gratis y sin internet después de instalar, voces `es_MX-claude-high` (Apache-2.0), `es_MX-ald-medium` (dominio público) y `es_ES-davefx-medium` (CC0). En la historia: `"lila": {"motor": "piper", "voz": "es_MX-claude-high", "velocidad": 0.95}`. Se generaron muestras de la misma frase con 3 ajustes de Kokoro y 3 voces de Piper para que Jeiler elija; **nadie las ha oído todavía** (Claude no oye), así que no se sabe cuál suena menos robótica.
+- **Ajustes de Kokoro:** más lento (0,85 a 0,92) y una coma extra donde la persona respiraría (la puntuación manda en el ritmo; `"pausas": true` pone coma tras «Y», «Pero», «Entonces»...).
+- **Cloudflare Workers AI** (modelo `@cf/myshell-ai/melotts`, español): tiene nivel gratis, pero necesita una cuenta de Jeiler y una clave de API. **Claude no la pide ni la guarda**: si Jeiler quiere probarla, la crea en su cuenta (Workers AI → API token) y la guarda en su gestor de claves o como secreto de su Worker; el texto del cuento sale a internet. Sin probar aquí por eso.
+- **Voces humanas:** siempre ganan en naturalidad; ver `historia-3d` (`--guion` y `--voces-propias`).
+

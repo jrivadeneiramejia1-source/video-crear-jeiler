@@ -30,6 +30,7 @@ description: Hace videos con personajes 3D que se ven bien (cara, pelo y manos c
 ## Reglas
 - **Primero imágenes fijas, después animación.** Frente, medio cuerpo y rostro (y perfil y espalda con `personajes-consistentes`) se enseñan a Jeiler; solo con su «sí» se anima.
 - **Personajes de licencia libre y con crédito:** Kenney (CC0) viene por `scripts/descargar_personajes.sh`. Mixamo (Adobe) pide cuenta; los de Quaternius (CC0) están en Google Drive y no se pudieron bajar desde esta sesión. Nunca copiar un personaje al repo (es público): viven en `~/.cache/video-jeiler/personajes/`.
+- **Pies y cabeza con margen:** `escena3d.py` (revisión de cada tramo al inicio, mitad y final) pide los pies a ≥ 16 % del borde de abajo (zona de subtítulos) y la cabeza a ≥ 4 % del de arriba; `"subs": "arriba"` en la toma si no cabe. Ver `historia-3d`. Para celebrar, el gesto `alegria` (brazos) y no `saltar`.
 - **No para niños sin revisar:** muchos personajes de estos paquetes son soldados o zombis con ropa sucia; escoger skins amables (ver `video-infantil`).
 - Nada de caras de personas reales ni imitar a alguien; los personajes son inventados.
 - Nada que gaste créditos sin el «sí» de Jeiler y una estimación del costo.

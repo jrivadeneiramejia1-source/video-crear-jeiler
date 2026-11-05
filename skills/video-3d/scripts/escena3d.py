@@ -256,7 +256,10 @@ def gesto(arm, nombre, t, a, b):
     elif nombre == "preocupado": giro_hueso(arm, "Head", 0, k * 14); giro_hueso(arm, "Head", 2, k * 6 * math.sin(2 * math.pi * .6 * tt))
     # Los brazos derecho e izquierdo tienen los ejes espejados (medido): el izquierdo sube hacia afuera con Z, el derecho con X
     elif nombre == "saluda": giro_hueso(arm, "RightArm", 0, k * 100); giro_hueso(arm, "RightForeArm", 0, k * 32 * math.sin(2 * math.pi * 2.0 * tt))
-    elif nombre == "alegria": giro_hueso(arm, "LeftArm", 2, k * 95); giro_hueso(arm, "RightArm", 0, k * 100)
+    elif nombre == "alegria":    # brazos arriba que se agitan un poco, pies quietos en el suelo (no se usa la animación «saltar»)
+        v = math.sin(2 * math.pi * 1.5 * tt); giro_hueso(arm, "LeftArm", 2, k * (125 + 12 * v)); giro_hueso(arm, "RightArm", 0, k * (130 - 12 * v))
+        giro_hueso(arm, "LeftForeArm", 2, k * 14 * math.sin(2 * math.pi * 3.0 * tt)); giro_hueso(arm, "RightForeArm", 0, k * -14 * math.sin(2 * math.pi * 3.0 * tt))
+    elif nombre == "balanceo": giro_hueso(arm, "Spine", 2, k * 4 * math.sin(2 * math.pi * 0.9 * tt)); giro_hueso(arm, "Head", 2, k * -3 * math.sin(2 * math.pi * 0.9 * tt))    # balanceo suave del torso
     elif nombre == "senala": giro_hueso(arm, "RightArm", 2, k * 80)
 
 def posar(P, s, t, cfg_t):
@@ -301,29 +304,54 @@ def actualizar_exterior(ids, a, b, m, t, sol_energia=None):
     for q in ids["arcoiris"]:
         q.hide_render = ar <= 0.01; q.active_material.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 1.6 * ar
 
-def revisar_cuadro(H, ids, cam, E, personajes, avisos):
-    sc = bpy.context.scene
+def pies_y_cabeza(sc, cam, P):
+    """Dónde caen en pantalla (0 = borde de abajo, 1 = borde de arriba) los pies (el punto MÁS bajo, contando las puntas del pie delante y detrás) y la cabeza de un personaje."""
+    an = P["ancla"].location; rz = P["ancla"].rotation_euler.z; al = P["cfg"].get("altura", 1.3); d = Vector((math.sin(rz), -math.cos(rz), 0)) * 0.18
+    pies = min(world_to_camera_view(sc, cam, Vector((an.x, an.y, 0.0)) + o).y for o in (Vector((0, 0, 0)), d, -d))
+    arriba = world_to_camera_view(sc, cam, Vector((an.x, an.y, al * 1.0))).y; cara = world_to_camera_view(sc, cam, Vector((an.x, an.y, al * 0.9))).y
+    return pies, arriba, cara
+
+def revisar_cuadro(H, ids, cam, E, personajes, avisos, medidas=None):
+    """Revisa CADA tramo de toma al inicio, a la mitad y al final (la cámara y los personajes se mueven). Reglas: lo que dice el cuento está dentro del cuadro; los pies quedan al menos
+    H['margen_pies'] (0.16 por defecto) por encima del borde de abajo, para dejar libre la banda de subtítulos; la cabeza queda con H['margen_cabeza'] (0.04) de aire arriba.
+    Si una toma pone \"subs\": \"arriba\", los subtítulos van arriba y el margen se pide arriba en vez de abajo."""
+    sc = bpy.context.scene; MP = H.get("margen_pies", 0.16); MC = H.get("margen_cabeza", 0.04); BANDA = H.get("banda_subs", 0.20); peor = {}
+    def reg(s, clave, valor, texto):    # un solo aviso por toma, personaje y tipo: el PEOR momento de todos los tramos (inicio, mitad y final)
+        k = (str(s.get("toma_base", s["id"])), clave)
+        if k not in peor or valor < peor[k][0]: peor[k] = (valor, texto)
     for s in H["tomas"]:
-        t0 = s.get("t_ini", 0.0); poner_camara(cam, s["camara"], t0, s.get("dur_total", s["dur"])); bpy.context.view_layer.update(); a, b, m = cielo_en(s, t0)
-        for pid, P in personajes.items():
-            if pid in s.get("personajes", {}): posar(P, s, t0, s["personajes"][pid])
-        for nombre in s.get("muestra", []):
-            objetivo = None
-            if nombre in personajes and nombre in s.get("personajes", {}): objetivo = personajes[nombre]["ancla"].location + Vector((0, 0, personajes[nombre]["cfg"].get("altura", 1.3) * (0.88 if str(s["id"]).endswith("rostro") or str(s["id"]).endswith("rostro_perfil") else 0.5)))
-            elif nombre == "ventana" and "ventana" in ids: objetivo = ids["ventana"].location + Vector((-1.0, -0.0, 1.3))
-            elif nombre in ("lluvia", "arcoiris"):
-                ok = (nombre == "lluvia" and "lluvia" in (a, b)) or (nombre == "arcoiris" and "arcoiris" in (a, b))
-                if not ok: avisos.append(f"toma {s['id']}: dice mostrar «{nombre}» pero el cielo de esa toma no lo tiene ({a}->{b})."); continue
-                objetivo = Vector((E["exterior"].get("arcoiris_x", 0) if nombre == "arcoiris" else E["cuarto"].get("ventana_x", 0), E["cuarto"].get("largo", 4) / 2 + (E["exterior"].get("arcoiris_y", 14) if nombre == "arcoiris" else 2), 4.5 if nombre == "arcoiris" else 2.2))
-            elif nombre in ids and hasattr(ids[nombre], "location"): objetivo = ids[nombre].location + Vector((0, 0, .5))
-            if objetivo is None: avisos.append(f"toma {s['id']}: «{nombre}» no existe en la escena."); continue
-            c = world_to_camera_view(sc, cam, objetivo)
-            if not (0.02 < c.x < 0.98 and 0.02 < c.y < 0.98 and c.z > 0): avisos.append(f"toma {s['id']}: «{nombre}» NO se ve dentro del cuadro (posición en pantalla {c.x:.2f},{c.y:.2f}).")
-            elif nombre in personajes and nombre in s.get("personajes", {}) and s.get("plano") not in ("medio", "cerca") and not str(s["id"]).endswith("rostro") and not str(s["id"]).endswith("rostro_perfil"):
-                an = personajes[nombre]["ancla"].location; al = personajes[nombre]["cfg"].get("altura", 1.3)    # cuerpo completo: pies y cabeza dentro del cuadro (si no, poner "plano": "medio")
-                for parte, z in (("los pies", 0.0), ("la cabeza", al * 0.97)):
-                    q = world_to_camera_view(sc, cam, Vector((an.x, an.y, z)))
-                    if not (0.01 < q.y < 0.99): avisos.append(f"toma {s['id']}: «{nombre}» sale cortado: {parte} quedan fuera del cuadro (si es un plano medio a propósito, poner \"plano\": \"medio\" en la toma).")
+        dur = s["dur"]; tt = s.get("t_ini", 0.0); arriba_subs = s.get("subs") == "arriba"; hablan = bool(s.get("hay_frase", True))
+        for etiqueta, t0 in (("inicio", tt), ("mitad", tt + dur / 2), ("final", tt + max(dur - 0.04, 0.0))):
+            poner_camara(cam, s["camara"], t0, s.get("dur_total", s["dur"])); bpy.context.view_layer.update(); a, b, m = cielo_en(s, t0)
+            for pid, P in personajes.items():
+                if pid in s.get("personajes", {}): posar(P, s, t0, s["personajes"][pid])
+            for nombre in s.get("muestra", []):
+                if etiqueta != "inicio": continue
+                objetivo = None
+                if nombre in personajes and nombre in s.get("personajes", {}): objetivo = personajes[nombre]["ancla"].location + Vector((0, 0, personajes[nombre]["cfg"].get("altura", 1.3) * (0.88 if str(s["id"]).endswith("rostro") or str(s["id"]).endswith("rostro_perfil") else 0.5)))
+                elif nombre == "ventana" and "ventana" in ids: objetivo = ids["ventana"].location + Vector((-1.0, -0.0, 1.3))
+                elif nombre in ("lluvia", "arcoiris"):
+                    ok = (nombre == "lluvia" and "lluvia" in (a, b)) or (nombre == "arcoiris" and "arcoiris" in (a, b))
+                    if not ok: avisos.append(f"toma {s['id']}: dice mostrar «{nombre}» pero el cielo de esa toma no lo tiene ({a}->{b})."); continue
+                    objetivo = Vector((E["exterior"].get("arcoiris_x", 0) if nombre == "arcoiris" else E["cuarto"].get("ventana_x", 0), E["cuarto"].get("largo", 4) / 2 + (E["exterior"].get("arcoiris_y", 14) if nombre == "arcoiris" else 2), 4.5 if nombre == "arcoiris" else 2.2))
+                elif nombre in ids and hasattr(ids[nombre], "location"): objetivo = ids[nombre].location + Vector((0, 0, .5))
+                if objetivo is None: avisos.append(f"toma {s['id']}: «{nombre}» no existe en la escena."); continue
+                c = world_to_camera_view(sc, cam, objetivo)
+                if not (0.02 < c.x < 0.98 and 0.02 < c.y < 0.98 and c.z > 0): avisos.append(f"toma {s['id']}: «{nombre}» NO se ve dentro del cuadro (posición en pantalla {c.x:.2f},{c.y:.2f}).")
+            if str(s["id"]).endswith("rostro") or str(s["id"]).endswith("rostro_perfil"): continue    # tomas de la hoja de personajes: sin subtítulos
+            for pid in s.get("personajes", {}):
+                P = personajes[pid]; pies, cabeza, cara = pies_y_cabeza(sc, cam, P); medio = s.get("plano") in ("medio", "cerca"); x = world_to_camera_view(sc, cam, P["ancla"].location).x
+                if not (-0.02 < x < 1.02): continue    # fuera de cuadro a un lado: lo cubre «muestra»
+                if medidas is not None and not medio: medidas.append((s["id"], etiqueta, pid, pies, cabeza))
+                if not medio:
+                    if arriba_subs:
+                        if pies < 0.03: reg(s, ("pies", pid), pies, f"toma {s.get('toma_base', s['id'])} (tramo {s['id']}, {etiqueta}): los pies de «{pid}» están a {pies:.0%} del borde de abajo (mínimo 3 %).")
+                        if cabeza > 1 - BANDA: reg(s, ("cabeza", pid), 1 - cabeza, f"toma {s.get('toma_base', s['id'])} (tramo {s['id']}, {etiqueta}): la cabeza de «{pid}» llega a {cabeza:.0%} y los subtítulos van arriba (banda desde {1 - BANDA:.0%}).")
+                    else:
+                        if pies < MP: reg(s, ("pies", pid), pies, f"toma {s.get('toma_base', s['id'])} (tramo {s['id']}, {etiqueta}): los pies de «{pid}» quedan a {pies:.0%} del borde de abajo (mínimo {MP:.0%}: ahí van los subtítulos). Subir la cámara, alejarla o poner \"subs\": \"arriba\".")
+                        if cabeza > 1 - MC: reg(s, ("cabeza", pid), 1 - cabeza, f"toma {s.get('toma_base', s['id'])} (tramo {s['id']}, {etiqueta}): la cabeza de «{pid}» queda a {1 - cabeza:.0%} del borde de arriba (mínimo {MC:.0%}).")
+                elif not arriba_subs and cara < BANDA: reg(s, ("cara", pid), cara, f"toma {s.get('toma_base', s['id'])} (tramo {s['id']}, {etiqueta}): la cara de «{pid}» cae dentro de la banda de subtítulos ({cara:.0%} < {BANDA:.0%}).")
+    avisos.extend(v[1] for k, v in sorted(peor.items()))
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); p.add_argument("historia"); p.add_argument("salida")
@@ -350,7 +378,11 @@ def main():
     cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam")); sc.collection.objects.link(cam); sc.camera = cam
     sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = a.muestras; sc.cycles.use_denoising = True; sc.cycles.use_adaptive_sampling = True; sc.cycles.max_bounces = 4; sc.cycles.caustics_reflective = False; sc.cycles.caustics_refractive = False
     sc.render.resolution_x, sc.render.resolution_y, sc.render.resolution_percentage = a.ancho, a.alto, 100; sc.view_settings.view_transform = 'Standard'; sc.view_settings.exposure = H.get("exposicion", -0.2); sc.render.image_settings.file_format = 'PNG'
-    avisos = []; revisar_cuadro(H, ids, cam, E, personajes, avisos); L = [f"{len(H['tomas'])} tomas | {a.ancho}x{a.alto}, {a.muestras} muestras, {a.fps_render} cuadros por segundo de dibujo (Cycles, CPU)"] + ["AVISO " + x for x in avisos]
+    avisos = []; medidas = []; revisar_cuadro(H, ids, cam, E, personajes, avisos, medidas); L = [f"{len(H['tomas'])} tomas | {a.ancho}x{a.alto}, {a.muestras} muestras, {a.fps_render} cuadros por segundo de dibujo (Cycles, CPU)"] + ["AVISO " + x for x in avisos]
+    if medidas:
+        pm = {}
+        for tid, et, pid, pies, cab in medidas: pm.setdefault(pid, []).append(pies)
+        L.append("pies más bajos medidos (0 % = borde de abajo): " + "; ".join(f"{k} {min(v):.0%}" for k, v in pm.items()))
     if avisos: print("\n".join("AVISO " + x for x in avisos), flush=True)
     else: print("Revisión de «muestra»: todo lo que dice el cuento se ve en el cuadro.", flush=True)
     if a.solo_revisar: (out / "informe.txt").write_text("\n".join(L) + "\n", encoding="utf-8"); return

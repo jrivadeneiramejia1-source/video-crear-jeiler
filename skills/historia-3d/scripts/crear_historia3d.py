@@ -3,6 +3,10 @@
 música original, subtítulos y revisión. Los pasos largos se pueden continuar si se corta (los cuadros ya dibujados no se repiten).
 
 Uso:  python3 crear_historia3d.py HISTORIA.json CARPETA [--solo-plan | --solo-fijas | --solo-voces] [--ancho 960 --alto 540 --muestras 16 --fps-render 12] [--sin-musica] [--sin-subtitulos]
+              [--voces-propias CARPETA [--limpiar auto|ia|ffmpeg|no] [--solo-propias]] | --guion
+  --guion          escribe GUION.md (número de frase, quién la dice y cómo) para que las personas graben, y se detiene
+  --voces-propias  usa grabaciones propias (una por frase «1_1.wav» o una por personaje «lila.wav»; ver voces_propias.py). Solo en carpetas LOCALES, nunca en el repo.
+  --solo-propias   si falta la grabación de alguna frase, parar en vez de completar con voz sintética
   --solo-voces   solo hace las voces y dice cuánto dura cada frase y cada toma
   --solo-plan    voces + plan de tomas (escena_render.json) y revisa que todo lo que dice el cuento se vea (sin dibujar)
   --solo-fijas   una imagen fija por toma (para aprobar el encuadre ANTES de dibujar el video)
@@ -32,10 +36,21 @@ def escribir_wav(ruta, x, sr=48000):
     with wave.open(str(ruta), "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr); w.writeframes((st * 32767).astype(np.int16).tobytes())
 def tiempo_srt(t): ms = int(round(t * 1000)); return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d},{ms % 1000:03d}"
 
+def escribir_guion(H, lineas, ruta):
+    """Guion para grabar: número de frase (toma_frase), quién la dice y cómo. Solo texto del cuento (sin datos de personas)."""
+    cuentos = {"narrador": "voz tranquila de quien cuenta un cuento", "lila": "niña curiosa y dulce", "tito": "niño simpático"}; L = [f"# Guion para grabar: {H.get('titulo', 'historia')}", "",
+         "Cada frase se graba **por separado** y se guarda con su número: `1_1.wav`, `1_2.wav`, `2_1.wav`... (o una grabación por personaje, leyendo sus frases de corrido y en orden: `lila.wav`).",
+         "Consejos: cuarto en silencio, el teléfono a un palmo de la boca, empezar a hablar medio segundo después de grabar, y repetir la frase si salió mal. Leerla como se lee a un niño pequeño: despacio y con cariño.",
+         "Las grabaciones se quedan en una carpeta del computador (nunca en GitHub). Si graba un niño o niña, con permiso de su mamá o papá.", "", "| Frase | Quién | Cómo | Texto |", "|---|---|---|---|"]
+    for l in lineas:
+        v = H.get("voces", {}).get(l["quien"], {}); L.append(f"| {l['id']} | {l['quien']} | {v.get('como', cuentos.get(l['quien'], 'natural'))} | {l['texto']} |")
+    ruta.write_text("\n".join(L) + "\n", encoding="utf-8")
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); p.add_argument("historia"); p.add_argument("salida")
     p.add_argument("--solo-plan", action="store_true"); p.add_argument("--solo-fijas", action="store_true"); p.add_argument("--solo-voces", action="store_true")
     p.add_argument("--ancho", type=int, default=960); p.add_argument("--alto", type=int, default=540); p.add_argument("--muestras", type=int, default=16); p.add_argument("--fps-render", type=int, default=12)
+    p.add_argument("--voces-propias", default=""); p.add_argument("--limpiar", default="auto", choices=["auto", "ia", "ffmpeg", "no"]); p.add_argument("--solo-propias", action="store_true"); p.add_argument("--guion", action="store_true")
     p.add_argument("--sin-musica", action="store_true"); p.add_argument("--sin-subtitulos", action="store_true"); a = p.parse_args()
     ruta_h = pathlib.Path(a.historia).resolve(); H = json.load(open(ruta_h, encoding="utf-8")); out = pathlib.Path(a.salida).resolve(); out.mkdir(parents=True, exist_ok=True); L = []; fps = a.fps_render
     # 1) validar: cada voz existe y quien habla está en la toma
@@ -47,9 +62,13 @@ def main():
     if errores: sys.exit("\n".join(errores))
     # 2) voces
     lineas = [{"id": f"{t['id']}_{k + 1}", "quien": l["quien"], "texto": l["texto"]} for t in H["tomas"] for k, l in enumerate(t.get("lineas", []))]
-    (out / "voces").mkdir(exist_ok=True); entrada = out / "voces" / "entrada.json"; datos = {"voces": H.get("voces", {}), "lineas": lineas}; viejo = json.load(open(entrada)) if entrada.exists() else None
+    if a.guion: escribir_guion(H, lineas, out / "GUION.md"); print(f"Guion escrito: {out / 'GUION.md'}"); return
+    (out / "voces").mkdir(exist_ok=True); entrada = out / "voces" / "entrada.json"; datos = {"voces": H.get("voces", {}), "lineas": lineas}
+    if a.voces_propias:    # si cambia alguna grabación (nombre, tamaño o fecha), se vuelve a preparar
+        datos["propias"] = sorted((f.name, f.stat().st_size, int(f.stat().st_mtime)) for f in pathlib.Path(a.voces_propias).expanduser().glob("*") if f.is_file()) if pathlib.Path(a.voces_propias).expanduser().is_dir() else []; datos["limpiar"] = a.limpiar
+    viejo = json.load(open(entrada)) if entrada.exists() else None
     if viejo != datos or not (out / "voces" / "voces.json").exists():
-        json.dump(datos, open(entrada, "w", encoding="utf-8"), ensure_ascii=False, indent=1); ejecutar([PY_VOZ, str(AQUI / "voces_historia.py"), str(entrada), str(out / "voces")])
+        json.dump(datos, open(entrada, "w", encoding="utf-8"), ensure_ascii=False, indent=1); ejecutar([PY_VOZ, str(AQUI / "voces_historia.py"), str(entrada), str(out / "voces")] + (["--propias", str(pathlib.Path(a.voces_propias).expanduser()), "--limpiar", a.limpiar] + (["--completo"] if a.solo_propias else []) if a.voces_propias else []))
     dur_l = {v["id"]: v for v in json.load(open(out / "voces" / "voces.json", encoding="utf-8"))}
     # 3) línea de tiempo: cada frase una tras otra; la toma dura lo que piden sus frases (o lo que diga "dur" si es más)
     cuadro = lambda x: round(x * fps) / fps; t0 = 0.0; plan = []; GAP = 0.3
@@ -64,7 +83,7 @@ def main():
     print("\n".join(L), flush=True)
     if a.solo_voces: (out / "informe.txt").write_text("\n".join(L) + "\n", encoding="utf-8"); return
     # 4) tomas partidas por frase: quien habla usa la animación de hablar; la cámara no se corta
-    R = copy.deepcopy(H); R["tomas"] = []; R.pop("voces", None); mitad = {}
+    R = copy.deepcopy(H); R["tomas"] = []; R.pop("voces", None); fijas = {}
     for q in plan:
         t = q["toma"]; cortes = [0.0]
         for m in q["marcas"]: cortes += [cuadro(m["ini"]), cuadro(m["fin"] + 0.08)]
@@ -73,11 +92,12 @@ def main():
             ini, fin = cortes[k], cortes[k + 1]
             if fin - ini < 1 / fps - 1e-6: continue
             hablando = next((m["quien"] for m in q["marcas"] if cuadro(m["ini"]) <= ini + 1e-6 and ini < cuadro(m["fin"] + 0.08) - 1e-6), None)
-            s = copy.deepcopy(t); s.pop("lineas", None); s["id"] = f"{t['id']}_{k + 1}"; s["dur"] = round(fin - ini, 4); s["t_ini"] = ini; s["dur_total"] = q["dur"]
+            s = copy.deepcopy(t); s.pop("lineas", None); s["id"] = f"{t['id']}_{k + 1}"; s["toma_base"] = t["id"]; s["dur"] = round(fin - ini, 4); s["t_ini"] = ini; s["dur_total"] = q["dur"]
             ah = t.get("anim_habla", "ual1:Idle_Talking_Loop")    # false = quien habla sigue con su animación (ej.: saltando de alegría)
             if ah and hablando and hablando in s.get("personajes", {}): s["personajes"][hablando]["anim"] = ah
             R["tomas"].append(s)
-            if ini <= q["dur"] / 2 < fin + 1e-9 and t["id"] not in mitad: mitad[t["id"]] = f"{s['id']}:{q['dur'] / 2 - ini:.2f}"    # el tramo que contiene la mitad de la toma
+            for nom, x in (("ini", 0.05), ("mitad", q["dur"] / 2), ("fin", max(q["dur"] - 0.1, 0))):    # fijas de inicio, mitad y final de CADA toma (la cámara se mueve)
+                if ini - 1e-9 <= x < fin + 1e-9 and (t["id"], nom) not in fijas: fijas[(t["id"], nom)] = f"{s['id']}:{x - ini:.2f}"
     ruta_r = out / "escena_render.json"
     for pid, cfg in R["reparto"].items():
         if cfg.get("piel") and not os.path.isabs(cfg["piel"]): cfg["piel"] = str((ruta_h.parent / cfg["piel"]).resolve())
@@ -86,7 +106,7 @@ def main():
     if a.solo_plan:
         ejecutar(base + ["--solo-revisar"]); (out / "informe.txt").write_text("\n".join(L) + "\n", encoding="utf-8"); return
     if a.solo_fijas:
-        ejecutar(base + sum([["--fija", v] for v in mitad.values()], [])); return
+        ejecutar(base + sum([["--fija", v] for v in fijas.values()], [])); return
     # 5) dibujo (largo, se puede continuar)
     t_ini = time.time(); ejecutar(base); L.append(f"dibujo: {time.time() - t_ini:.0f} s"); muda = out / "render" / "escena_muda.mp4"
     if not muda.exists(): sys.exit("No salió escena_muda.mp4")
@@ -110,9 +130,9 @@ def main():
     def poner(ini, fin, txt): nonlocal k; k += 1; srt.append(f"{k}\n{tiempo_srt(ini)} --> {tiempo_srt(fin)}\n{txt}\n")
     if H.get("titulo"): poner(0.3, min(3.6, plan[0]["dur"]), "{\\an8}{\\fs34}" + H["titulo"])
     for q in plan:
-        for m in q["marcas"]: poner(q["t0"] + m["ini"], q["t0"] + m["fin"] + 0.15, (m["texto"] if m["quien"] == "narrador" else (f"{m['quien'].capitalize()}: {m['texto']}" if H.get("subtitulos_nombres") else f"«{m['texto']}»")))    # diálogos entre comillas (menos letras que con el nombre)
+        for m in q["marcas"]: poner(q["t0"] + m["ini"], q["t0"] + m["fin"] + 0.15, ("{\\an8}" if q["toma"].get("subs") == "arriba" else "") + (m["texto"] if m["quien"] == "narrador" else (f"{m['quien'].capitalize()}: {m['texto']}" if H.get("subtitulos_nombres") else f"«{m['texto']}»")))    # diálogos entre comillas (menos letras que con el nombre)
     (out / "subs.srt").write_text("\n".join(srt), encoding="utf-8")
-    vf = "null" if a.sin_subtitulos else f"subtitles={(out / 'subs.srt').as_posix()}:force_style='FontName=Inter,FontSize=17,Outline=2,Shadow=0,MarginV=22,PrimaryColour=&H00FFFFFF&,OutlineColour=&H90000000&'"
+    vf = "null" if a.sin_subtitulos else f"subtitles={(out / 'subs.srt').as_posix()}:force_style='FontName=Inter,FontSize=17,Outline=2,Shadow=0,MarginV=20,PrimaryColour=&H00FFFFFF&,OutlineColour=&H90000000&'"
     final = out / "video_final.mp4"; ejecutar(["ffmpeg", "-v", "error", "-y", "-i", str(muda), "-i", str(out / "audio_final.wav"), "-vf", vf, "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", str(final)])
     # 8) revisión: duración, volumen, hoja de cuadros
     d = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(final)], capture_output=True, text=True).stdout or 0)
