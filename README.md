@@ -8,6 +8,8 @@ Cada carpeta de `skills/` es una skill: un archivo `SKILL.md` con instrucciones 
 ## Estado: fases 4, 5 y 6 hechas (crear)
 Hay 12 skills: `plan-de-video`, `animacion-2d`, `video-explicativo`, `voz-sintetica`, `musica-y-efectos`, `video-3d`, `personajes-consistentes`, `video-infantil`, `clips-ia` (**sin probar**), `estudiar-video-referencia`, `historia-3d` (piezas probadas; **video completo en pausa**) y `recursos-3d`. El orden y los grupos están en `INDICE-DE-SKILLS.md`. Lo probado y lo no probado: `PRUEBAS.md`.
 
+**¿Quieres pedir un video?** Lee `COMO-PEDIR-UN-VIDEO.md` (qué decirme y en qué orden trabajo).
+
 ## Cómo usarlas (cuando haya skills)
 Una skill solo funciona si está en la carpeta de skills de Claude (`~/.claude/skills/`). El instalador copia por grupos:
 
