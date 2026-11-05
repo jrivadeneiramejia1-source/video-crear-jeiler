@@ -113,6 +113,18 @@ Formato de los otros repos: cuándo usar, reglas, proceso, señales de alerta, v
 | 7 | Pruebas reales y de activación sola; `PRUEBAS.md` | Mediano | Un video completo de cada tipo |
 | 8 | Mantener: `comparar-fuentes.py` cada mes; precios, cupos y reglas cada 3 meses | Pequeño | — |
 
+
+### Estado real (2026-11-05)
+| Fase | Estado | Cambios frente al plan |
+|---|---|---|
+| 0 y 1 | Hechas | — |
+| 2 y 3 (editar) | Hechas con videos inventados | Sin `exportar-para` ni `auto-editor` (los cubre `ffmpeg-skill`); falta probar con una grabación real de Jeiler |
+| 4 (crear, básico) | Hecha | — |
+| 5 (3D, personajes, infantil) | Hecha y ampliada | El 3D se hizo solo por el camino de Blender con personajes ya hechos; nació `historia-3d` (primero la historia, luego los personajes) y `recursos-3d` |
+| 6 (IA y referencia) | `estudiar-video-referencia` hecha; `clips-ia` escrita **sin probar** | Canva pide plan de pago y Higgsfield no mostró sus herramientas de generar; el video de flores de TikTok se descartó por pedido de Jeiler |
+| 7 (pruebas reales) | Parcial | Hay un video completo de cada tipo gratis (explicativo, cuento 2D, cuento 3D); faltan: clip de IA (con el «sí» de Jeiler), grabación real, y que una persona oiga y mire los resultados. El arranque automático de skills se probó en una carpeta aparte |
+| 8 (mantener) | Pendiente | `comparar-fuentes.py` cada mes; precios y reglas cada 3 meses |
+
 ---
 
 ## 6. Dónde corre cada cosa

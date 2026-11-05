@@ -17,9 +17,9 @@ El error más común en videos con personajes es que cambian entre escena y esce
 
 ## Proceso
 1. **Elegir el personaje:** un modelo 3D con esqueleto (ver `video-3d`) o, en 2D, los colores y rasgos de `animacion-2d` (`piel`, `pelo`, `pelo_estilo`, `camisa`).
-2. **Hoja de personaje (3D):**
+2. **Hoja de personaje (3D):** lo mejor y lo más general es `escena3d.py historia.json carpeta --hoja` (de `video-3d`; deja `hoja_<personaje>.png` con frente, perfil, espalda y rostro de cerca, con la ropa, el pelo y los accesorios de la historia). El script `hoja_personaje.py` de abajo es el antiguo, de un solo personaje, y solo sirve con *Animated Characters 1*:
    ```bash
-   $PYBL scripts/hoja_personaje.py --personaje $P/Model/characterMedium.fbx --piel $P/Skins/survivorMaleB.png --salida hoja
+   $PYBL scripts/hoja_personaje.py --personaje $P/Model/characterMedium.fbx --piel $P/Skins/survivorMaleB.png --salida hoja   # solo Animated Characters 1
    ```
    Deja `hoja/hoja.png` (frente, perfil, espalda y rostro), `paleta.json` y `paleta.png`. (Necesita `video-3d` y su Python con Blender.)
 3. **Ficha:** copiar `plantilla/ficha-personaje.md`, ponerle un nombre inventado, los colores de la paleta, los rasgos que **no** cambian y lo que nunca debe pasar.

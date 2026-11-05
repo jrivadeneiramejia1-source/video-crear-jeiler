@@ -23,6 +23,9 @@ Una skill solo funciona si está en la carpeta de skills de Claude (`~/.claude/s
 ```
 **En sesiones en la nube** se instalan solos los grupos de `grupos-activos.txt`, con un hook de inicio en `.claude/`; solo funciona si este repo está cargado como repo de la sesión. El instalador no pisa una skill que ya exista con el mismo nombre y que no haya instalado él. Mejor pocos grupos a la vez: cada skill agrega su descripción al contexto y eso gasta tokens.
 
+## Dónde funciona
+Pensado para **sesiones en la nube de Claude (Linux)**: los instaladores son scripts `.sh` y el 3D usa Blender sin pantalla (Cycles en CPU, sin tarjeta gráfica). En Windows o Mac no corren tal cual (usar la nube o WSL). Un video 3D de 30 s tarda cerca de una hora y media de cálculo.
+
 ## Reglas
 - Repo **público**: nunca datos de personas (ver `SEGURIDAD.md` y `CLAUDE.md`).
 - Nada gasta créditos (Higgsfield, Canva, ElevenLabs) sin permiso y estimación del costo.

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Escena 3D con un personaje YA HECHO (rigged y animado) en Blender sin pantalla, con Cycles en CPU (sin tarjeta gráfica).
 Nunca arma caras ni pelo con figuras básicas: se usan personajes profesionales de licencia libre (ver SKILL.md).
+LIMITADO: solo posa bien al paquete Animated Characters 1. Con los demás (Animated Characters 2...) el personaje sale en «T» (la animación parte de otra pose): usar escena3d.py, que copia la dirección de cada hueso.
 
 Uso:  python escena_blender.py --personaje Model/personaje.fbx --salida CARPETA [opciones]
   --piel imagen.png        textura (skin) del personaje
@@ -72,8 +73,9 @@ def main():
     if a.animacion and arm:   # animaciones de otros archivos -> acciones del mismo esqueleto, encadenadas en la pista NLA y repetidas hasta llenar los segundos
         arm.animation_data_create(); pista = arm.animation_data.nla_tracks.new(); inicio = 1; acciones = []
         for ruta in a.animacion:
-            extra = importar(ruta); ar = next((o for o in extra if o.type == 'ARMATURE'), None)
-            acc = ar.animation_data.action if ar and ar.animation_data else None
+            antes_acc = set(bpy.data.actions.keys()); extra = importar(ruta); ar = next((o for o in extra if o.type == 'ARMATURE'), None)
+            nuevas = [bpy.data.actions[n] for n in bpy.data.actions.keys() if n not in antes_acc and "target" not in n.lower()]    # el archivo trae también una «pose de prueba» (Targeting Pose) que no es la animación
+            acc = nuevas[0] if nuevas else (ar.animation_data.action if ar and ar.animation_data else None)
             if acc is None: sys.exit(f"{ruta} no trae una animación.")
             acciones.append(acc)
             for o in extra: bpy.data.objects.remove(o, do_unlink=True)
