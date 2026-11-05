@@ -9,6 +9,10 @@
 - Hallazgo clave: las animaciones de Kenney se hicieron con los brazos abajo y el modelo está en «T»; **se copia la dirección de cada hueso** (`reorientar`) en vez de los números de la animación.
 - EEVEE no sirve aquí (con OpenGL por software sale roto o negro): se usa Cycles en CPU, unos 5 s por imagen a 640x360 con 12 muestras.
 
+## Agregado después de la pausa (herramientas, 2026-11-05)
+- Animaciones de Quaternius (`"anim": "ual1:Walk_Loop"`, `"ual2:Yes"`), cielos reales de Poly Haven (`exterior.cielos`), hoja automática de personajes (`--hoja`), accesorios (`coletas`, `lazo`), skills `historia-3d` y `recursos-3d`. Resumen de la búsqueda: `docs/HALLAZGOS-herramientas-2026-11-05.md`.
+- La hoja de Lila y Tito se mostró a Jeiler para su aprobación (aún sin respuesta).
+
 ## Pendiente antes de renderizar el video
 1. Pared sobreexpuesta (bajar `luz_interior` o la exposición) y suelo muy claro.
 2. El arcoíris no aparece en la toma 5 tras corregir su forma: acomodar posición y tamaño.

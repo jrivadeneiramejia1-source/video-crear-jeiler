@@ -28,6 +28,9 @@ El error más común en videos con personajes es que cambian entre escena y esce
 6. **Comprobar entre escenas:** `python3 scripts/comparar_cuadros.py cuadro_referencia.png cuadro_escena2.png cuadro_escena3.png`. Compara la paleta de la zona central; avisa «posible cambio de personaje» si pasa de 0,25.
 7. **Mirar los cuadros** de las escenas juntos (`look.py` de `ffmpeg-skill` o una hoja propia) y buscar cambios de forma de cara, pelo y manos.
 
+## Distinguir a los personajes (lección de la prueba 2026-11-05)
+Dos personajes con el mismo cuerpo y el mismo peinado solo cambiando la camiseta se confunden (en una prueba, un niño parecía mujer). Cada personaje principal debe diferenciarse en **al menos tres cosas**: peinado o accesorio (`coletas`, `lazo` en `escena3d.py`), color de pelo, colores de ropa y detalles (mechón, pecas, parche). Se comprueba mirando la **hoja de personajes** (`escena3d.py --hoja`) también **de espalda y de perfil**, no solo de frente. Cambiar pelo y ropa: `video-3d/scripts/personalizar_piel.py`.
+
 ## Señales de alerta
 - Cambiar de modelo, de piel o de iluminación entre escenas sin avisar.
 - Aprobar el personaje mirando solo el frente.

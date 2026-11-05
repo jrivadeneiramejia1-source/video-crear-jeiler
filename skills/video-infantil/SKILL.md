@@ -33,6 +33,9 @@ Un video para niños se hace con más cuidado que uno para adultos: lo que ven n
 7. **Revisión técnica** general con `verificar-video` (`check.py --content`): volumen, formato, audio presente.
 8. **Una persona adulta lo ve y lo escucha completo** y firma el «sí». Recién entonces se piensa en publicar (con `publicar-video` de `video-editar-jeiler`, que no publica solo).
 
+## Coherencia entre el cuento y lo que se ve
+Si la narración dice «por la ventana», tiene que haber una ventana en el cuadro; si dice «arcoíris», se ve el arcoíris. En el cuento de ejemplo en 2D se mencionaba una ventana que no estaba dibujada y se corrigió el texto. Para historias con escenarios y objetos, usar `historia-3d` (revisa lo que el cuento dice que se ve) en vez del motor 2D.
+
 ## Señales de alerta
 - Aprobar un video porque `revisar_infantil.py` dijo OK: solo mide cuatro cosas.
 - Voz sintética sin declarar; música con derechos de otros.

@@ -17,6 +17,16 @@ description: Hace videos con personajes 3D que se ven bien (cara, pelo y manos c
 
 **Camino A, hoy:** la generación con IA no se pudo probar. El conector de Canva dijo que generar video «no está disponible con tu plan actual» (pide un plan de pago) y en esta sesión no aparecieron las herramientas de **generar** de Higgsfield (solo las de publicar juegos): para usarlas hay que abrir claude.ai/customize/connectors, entrar al conector y poner esas herramientas como permitidas. **No se gastó ningún crédito.** La skill `clips-ia` (fase siguiente) lo desarrolla.
 
+## Herramientas (probadas con imágenes fijas)
+| Herramienta | Para qué |
+|---|---|
+| `scripts/escena_blender.py` | Un solo personaje, vistas fijas o un clip corto (ver abajo). |
+| `scripts/escena3d.py` | **Historias completas:** cuarto con muebles, ventana 3D, exterior, lluvia, arcoíris, cielos reales, varios personajes, gestos y cámaras; hoja de personajes (`--hoja`); revisa que lo que dice el cuento se vea (`muestra`). Ver la skill `historia-3d`. |
+| `scripts/personalizar_piel.py` | Cambiar pelo y ropa, o quitar dibujos (una calavera), desde el SVG de origen de la piel de Kenney. |
+| `scripts/descargar_personajes.sh`, `descargar_recursos.sh`, `descargar_cielo.py` | Personajes, muebles, naturaleza, animaciones y cielos (todo CC0). Catálogo: skill `recursos-3d`. |
+
+**Descubrimientos que cuestan caro si se olvidan:** (1) las animaciones de Kenney y de Quaternius se hicieron sobre esqueletos que no descansan en la misma pose que el modelo (que está en «T»): copiar los números deja los brazos abiertos; `escena3d.py` **copia la dirección de cada hueso**. (2) El archivo `idle.fbx` de Kenney trae también una «pose de prueba» (`Targeting Pose`) que no es la animación. (3) Los FBX del kit de muebles son de texto y Blender no los lee: se usan los OBJ. (4) EEVEE con OpenGL por software sale roto o negro (probado con las bibliotecas de Mesa instaladas): se usa Cycles en CPU.
+
 ## Reglas
 - **Primero imágenes fijas, después animación.** Frente, medio cuerpo y rostro (y perfil y espalda con `personajes-consistentes`) se enseñan a Jeiler; solo con su «sí» se anima.
 - **Personajes de licencia libre y con crédito:** Kenney (CC0) viene por `scripts/descargar_personajes.sh`. Mixamo (Adobe) pide cuenta; los de Quaternius (CC0) están en Google Drive y no se pudieron bajar desde esta sesión. Nunca copiar un personaje al repo (es público): viven en `~/.cache/video-jeiler/personajes/`.

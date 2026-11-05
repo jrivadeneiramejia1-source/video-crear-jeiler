@@ -34,3 +34,10 @@ Base creada el 2026-11-04. Todavía no hay skills de terceros en este repo.
 - **Clips de IA:** gastan créditos y suben imágenes a un servicio externo. La skill exige el «sí» de Jeiler con un costo concreto antes de cada generación, y prohíbe subir personas reales, niños o archivos de comunidades indígenas. No se generó nada.
 - **Búsqueda de patrones de riesgo** y **gitleaks**: ver el commit de esta fase.
 
+## Resultado (herramientas de historias 3D, 2026-11-05)
+- **Sin código de terceros copiado.** `escena3d.py`, `personalizar_piel.py`, `descargar_recursos.sh` y `descargar_cielo.py` son propios.
+- **Internet:** `descargar_recursos.sh` (opengameart.org: zips de Kenney y Quaternius; comprueba que su licencia diga CC0) y `descargar_cielo.py` (api.polyhaven.com y dl.polyhaven.org, solo librería estándar de Python). `escena3d.py` y `personalizar_piel.py` no usan internet. No se verifica una huella de lo descargado: pendiente.
+- **Solo modelos, texturas y animaciones** (sin binarios ejecutables de terceros). Las pieles se redibujan desde SVG con Chromium sin pantalla.
+- **Archivos descargados:** se tratan como datos; Blender importa FBX, OBJ y glTF (formatos que pueden traer mallas muy pesadas: se probó con paquetes de Kenney y Quaternius, de tamaño normal).
+- **Se instalaron bibliotecas del sistema** (Mesa/EGL) en la nube solo para probar EEVEE; se descartó y no hacen falta.
+

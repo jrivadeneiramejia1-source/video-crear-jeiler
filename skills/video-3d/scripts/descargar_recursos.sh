@@ -11,4 +11,6 @@ bajar() {  # nombre carpeta url
 }
 bajar "Furniture Kit" muebles "https://opengameart.org/sites/default/files/kenney_furniturePack.zip"
 bajar "Nature Kit" naturaleza "https://opengameart.org/sites/default/files/Nature%20Kit%20%282.1%29.zip"
-echo "Créditos (voluntarios, se agradecen): «Muebles y naturaleza de Kenney (kenney.nl), CC0»."
+bajar "Universal Animation Library (Quaternius)" ual1 "https://opengameart.org/sites/default/files/universal_animation_librarystandard.zip"
+bajar "Universal Animation Library 2 (Quaternius)" ual2 "https://opengameart.org/sites/default/files/universal_animation_library_2standard.zip"
+echo "Créditos (voluntarios, se agradecen): «Muebles y naturaleza de Kenney (kenney.nl) y animaciones de Quaternius (quaternius.com), CC0»."
