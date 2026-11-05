@@ -59,6 +59,8 @@ def main():
         else:
             ini = fin_prev + (0 if i == 0 else .4); e["inicio"] = round(ini, 3); e["fin"] = round(ini + float(e.get("duracion", 3)), 3); fin_prev = e["fin"]
             if i: escenas[-1]["fin"] = round(ini, 3)
+        for d in e.get("dialogo", []):   # un globo de diálogo puede atarse a una frase de la narración: {"quien": 0, "texto": "...", "frase": 1}
+            if "frase" in d and e.get("frases"): fr = e["frases"][min(int(d["frase"]), len(e["frases"]) - 1)]; d["a"] = fr["a"]; d["b"] = fr["b"] + .3
         escenas.append(e)
     escenas[-1]["fin"] = round(escenas[-1]["fin"] + (1.5 if escenas[-1].get("creditos") else .6), 3)
     cues = [{"a": round(t["inicio"] - .05, 3), "b": round(t["fin"] + .12, 3), "texto": t["texto"]} for t in tiempos]

@@ -46,6 +46,9 @@ const ICONOS = {
   reloj: c => `<circle r="46" fill="none" stroke="${c}" stroke-width="10"/><path d="M 0 -26 V 0 L 20 12" stroke="${c}" stroke-width="9" stroke-linecap="round" fill="none"/>`,
   libro: c => `<path d="M -46 -30 H -4 V 34 H -46 Z M 4 -30 H 46 V 34 H 4 Z" fill="${c}"/>`,
   wifi: c => `<g fill="none" stroke="${c}" stroke-width="9" stroke-linecap="round"><path d="M -42 -10 A 60 60 0 0 1 42 -10"/><path d="M -26 8 A 36 36 0 0 1 26 8"/></g><circle cy="30" r="7" fill="${c}"/>`,
+  gota: c => `<path d="M 0 -46 C 30 -6 36 10 36 22 A 36 36 0 0 1 -36 22 C -36 10 -30 -6 0 -46 Z" fill="${c}"/><path d="M -14 20 A 16 16 0 0 0 4 36" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".6"/>`,
+  sol: c => { let d = ''; for (let i = 0; i < 10; i++) d += `<rect x="-5" y="-58" width="10" height="18" rx="5" fill="${c}" transform="rotate(${i * 36})"/>`; return d + `<circle r="30" fill="${c}"/>`; },
+  arcoiris: c => ['#E4572E', '#F4A259', '#F6D55C', '#6BBF59', '#3CAEA3', '#3B6EA8', '#7A4EAB'].map((k, i) => `<path d="M ${-48 + i * 5} 30 A ${48 - i * 5} ${48 - i * 5} 0 0 1 ${48 - i * 5} 30" stroke="${k}" stroke-width="6" fill="none" stroke-linecap="round"/>`).join(''),
   casa: c => `<path d="M -46 0 L 0 -44 L 46 0 H 32 V 40 H -32 V 0 Z" fill="${c}"/><rect x="-9" y="12" width="18" height="28" fill="#fff" opacity=".9"/>`,
 };
 function icono(nombre, x, y, s, color, op) {
@@ -106,6 +109,7 @@ registrarEscena('personajes', (e, tl, c) => {
   const ps = e.personajes || [];
   ps.forEach((p, i) => { const ent = easeOut(seg(tl, .1 + i * .2, .7 + i * .2)); s += personaje(Object.assign({}, p, { x: p.x * W, y: p.y * H + (1 - ent) * 40 * U, s: (p.s || 1) * U * (V ? 1 : 1), t: c.t, ph: i * 1.7, op: ent })); });
   (e.dialogo || []).forEach(d => { const p = ps[d.quien || 0]; if (!p) return; const q = seg(tl, d.a, d.a + .4) * (1 - seg(tl, d.b - .3, d.b)); s += globo(clamp(p.x, .25, .75) * W, p.y * H - 200 * U * (p.s || 1) - 40 * U, d.texto, q, 30, p.x * W, p.y * H - 150 * U * (p.s || 1)); });
+  (e.objetos || []).forEach(o => { const q = easeOut(seg(tl, o.desde || 0, (o.desde || 0) + .7)); if (q > 0) s += icono(o.icono, o.x * W, o.y * H + (1 - q) * 20 * U, (o.s || 120) * U * (.6 + .4 * q), o.color || TEMA.acento, q); });   // objetos del cielo o del suelo (arcoíris, sol, gotas...)
   if (e.rotulo) s += T(W / 2, H * .13, e.rotulo, 44 * U, 800, TEMA.tinta, 'middle', `opacity="${f(easeOut(seg(tl, .1, .6)))}"`);
   return s;
 });
