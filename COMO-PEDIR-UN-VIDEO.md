@@ -6,7 +6,7 @@ No necesitas saber de técnica: cuéntame la idea como la tengas. Yo completo lo
 |---|---|
 | **De qué trata** (aunque sea una frase) | Con la historia clara se deciden los personajes, la ropa y los lugares. Primero va la historia. |
 | **Para quién es y dónde se verá** (niños, la universidad, TikTok, WhatsApp, YouTube) | Cambia el tono, el largo, si es vertical u horizontal y las reglas (por ejemplo, videos para niños). |
-| **Cuánto debe durar** | Cada segundo de video 3D cuesta tiempo de cálculo (a calidad de prueba, cerca de 2 minutos por cada segundo de video). Un cuento de 30 s tarda cerca de una hora en dibujarse. |
+| **Cuánto debe durar** | Cada segundo de video 3D cuesta tiempo de cálculo (a calidad de prueba, cerca de 2,5 minutos de computador por cada segundo de video). Un cuento de 30 s tarda cerca de una hora y veinte en dibujarse. |
 | **Si hay voces de personas reales** | Solo con permiso escrito de la persona. Si no, uso voz sintética y lo declaro. |
 | **Qué NO quieres** | Ejemplo: sin sustos, sin música, sin cierto personaje. |
 

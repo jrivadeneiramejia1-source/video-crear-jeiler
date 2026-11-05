@@ -254,9 +254,10 @@ def gesto(arm, nombre, t, a, b):
     elif nombre == "niega": giro_hueso(arm, "Head", 1, k * 26 * math.sin(2 * math.pi * 1.7 * tt))
     elif nombre == "habla": giro_hueso(arm, "Head", 0, k * 4 * math.sin(2 * math.pi * 1.6 * tt)); giro_hueso(arm, "Head", 1, k * 5 * math.sin(2 * math.pi * .8 * tt))
     elif nombre == "preocupado": giro_hueso(arm, "Head", 0, k * 14); giro_hueso(arm, "Head", 2, k * 6 * math.sin(2 * math.pi * .6 * tt))
-    elif nombre == "saluda": giro_hueso(arm, "RightArm", 2, -k * 105); giro_hueso(arm, "RightForeArm", 2, -k * 25 * math.sin(2 * math.pi * 2.2 * tt))
-    elif nombre == "alegria": giro_hueso(arm, "LeftArm", 2, k * 95); giro_hueso(arm, "RightArm", 2, -k * 95)
-    elif nombre == "senala": giro_hueso(arm, "RightArm", 0, k * 75)
+    # Los brazos derecho e izquierdo tienen los ejes espejados (medido): el izquierdo sube hacia afuera con Z, el derecho con X
+    elif nombre == "saluda": giro_hueso(arm, "RightArm", 0, k * 100); giro_hueso(arm, "RightForeArm", 0, k * 32 * math.sin(2 * math.pi * 2.0 * tt))
+    elif nombre == "alegria": giro_hueso(arm, "LeftArm", 2, k * 95); giro_hueso(arm, "RightArm", 0, k * 100)
+    elif nombre == "senala": giro_hueso(arm, "RightArm", 2, k * 80)
 
 def posar(P, s, t, cfg_t):
     """Deja al personaje en la pose del instante t (segundos) de la toma, según lo que diga la toma."""
@@ -271,6 +272,8 @@ def posar(P, s, t, cfg_t):
     nombre = cfg_t.get("anim", "idle"); guia = cargar_guia(nombre) if ":" in nombre else (P["acs"].get(nombre) or P["acs"]["idle"]); f0, f1 = guia["act"].frame_range; largo = max(f1 - f0, 1)
     vel = cfg_t.get("vel", 1.0); frame = f0 + ((t * P["cfg"].get("fps_anim", 30) * vel) % largo)
     reorientar(P, guia, frame)
+    salto = cfg_t.get("salto_m", 0.25 if nombre == "saltar" else 0.0)    # la animación de salto de Kenney agacha y estira pero no despega: se agrega el arco en el aire (sin(pi*fase))
+    if salto: fase = ((t * P["cfg"].get("fps_anim", 30) * vel) % largo) / largo; an.location = (p.x, p.y, p.z + salto * abs(math.sin(math.pi * fase)))
     if "cabeza_a" in cfg_t:     # la cabeza mira un punto (en metros), repartido entre cuello y cabeza
         mt = arm.matrix_world.to_translation(); d = vec(cfg_t["cabeza_a"]) - (mt + Vector((0, 0, P["cfg"].get("altura", 1.3) * .85)))
         yaw = math.degrees(math.atan2(d.x, -d.y)) - math.degrees(rz); yaw = (yaw + 180) % 360 - 180; yaw = max(-75, min(75, yaw))
@@ -376,7 +379,7 @@ def main():
             if ruta.exists(): continue
             dibujar(s, k / a.fps_render, ruta); n_total += 1
             if k in (0, 4) or (k + 1) % 20 == 0: print(f"toma {i}: cuadro {k + 1}/{n} ({(time.time() - t_ini) / max(n_total, 1):.1f} s por cuadro)", flush=True)
-        mp4 = out / "tomas" / f"toma_{i}.mp4"; subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(a.fps_render), "-i", str(d / "%04d.png"), "-vf", f"fps=24,scale={a.ancho}:{a.alto}", "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p", str(mp4)], check=True)
+        mp4 = out / "tomas" / f"toma_{i}.mp4"; subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(a.fps_render), "-i", str(d / "%04d.png"), "-vf", f"fps=24,scale={a.ancho}:{a.alto}:out_color_matrix=bt709:out_range=tv", "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", str(mp4)], check=True)
     L.append(f"dibujados {n_total} cuadros en {time.time() - t_ini:.0f} s ({(time.time() - t_ini) / max(n_total, 1):.1f} s por cuadro)")
     if len(sel) == len(tomas):
         lista = out / "tomas" / "lista.txt"; lista.write_text("".join(f"file 'toma_{i}.mp4'\n" for i in tomas), encoding="utf-8")

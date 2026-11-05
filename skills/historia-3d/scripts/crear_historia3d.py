@@ -74,7 +74,8 @@ def main():
             if fin - ini < 1 / fps - 1e-6: continue
             hablando = next((m["quien"] for m in q["marcas"] if cuadro(m["ini"]) <= ini + 1e-6 and ini < cuadro(m["fin"] + 0.08) - 1e-6), None)
             s = copy.deepcopy(t); s.pop("lineas", None); s["id"] = f"{t['id']}_{k + 1}"; s["dur"] = round(fin - ini, 4); s["t_ini"] = ini; s["dur_total"] = q["dur"]
-            if hablando and hablando in s.get("personajes", {}): s["personajes"][hablando]["anim"] = t.get("anim_habla", "ual1:Idle_Talking_Loop")
+            ah = t.get("anim_habla", "ual1:Idle_Talking_Loop")    # false = quien habla sigue con su animación (ej.: saltando de alegría)
+            if ah and hablando and hablando in s.get("personajes", {}): s["personajes"][hablando]["anim"] = ah
             R["tomas"].append(s)
             if ini <= q["dur"] / 2 < fin + 1e-9 and t["id"] not in mitad: mitad[t["id"]] = f"{s['id']}:{q['dur'] / 2 - ini:.2f}"    # el tramo que contiene la mitad de la toma
     ruta_r = out / "escena_render.json"
@@ -109,10 +110,10 @@ def main():
     def poner(ini, fin, txt): nonlocal k; k += 1; srt.append(f"{k}\n{tiempo_srt(ini)} --> {tiempo_srt(fin)}\n{txt}\n")
     if H.get("titulo"): poner(0.3, min(3.6, plan[0]["dur"]), "{\\an8}{\\fs34}" + H["titulo"])
     for q in plan:
-        for m in q["marcas"]: poner(q["t0"] + m["ini"], q["t0"] + m["fin"] + 0.15, (m["texto"] if m["quien"] == "narrador" else f"{m['quien'].capitalize()}: {m['texto']}"))
+        for m in q["marcas"]: poner(q["t0"] + m["ini"], q["t0"] + m["fin"] + 0.15, (m["texto"] if m["quien"] == "narrador" else (f"{m['quien'].capitalize()}: {m['texto']}" if H.get("subtitulos_nombres") else f"«{m['texto']}»")))    # diálogos entre comillas (menos letras que con el nombre)
     (out / "subs.srt").write_text("\n".join(srt), encoding="utf-8")
     vf = "null" if a.sin_subtitulos else f"subtitles={(out / 'subs.srt').as_posix()}:force_style='FontName=Inter,FontSize=17,Outline=2,Shadow=0,MarginV=22,PrimaryColour=&H00FFFFFF&,OutlineColour=&H90000000&'"
-    final = out / "video_final.mp4"; ejecutar(["ffmpeg", "-v", "error", "-y", "-i", str(muda), "-i", str(out / "audio_final.wav"), "-vf", vf, "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", str(final)])
+    final = out / "video_final.mp4"; ejecutar(["ffmpeg", "-v", "error", "-y", "-i", str(muda), "-i", str(out / "audio_final.wav"), "-vf", vf, "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", str(final)])
     # 8) revisión: duración, volumen, hoja de cuadros
     d = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(final)], capture_output=True, text=True).stdout or 0)
     e = subprocess.run(["ffmpeg", "-nostdin", "-i", str(final), "-af", "ebur128=peak=true", "-vn", "-f", "null", "-"], capture_output=True, text=True).stderr; I = re.findall(r"I:\s+(-?[\d.]+) LUFS", e); P = re.findall(r"Peak:\s+(-?[\d.]+) dBFS", e)

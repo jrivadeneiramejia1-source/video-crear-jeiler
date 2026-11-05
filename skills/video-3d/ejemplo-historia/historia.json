@@ -521,7 +521,8 @@
       -0.6,
       2.0
      ],
-     "anim": "saltar"
+     "anim": "saltar",
+     "vel": 0.6
     },
     "tito": {
      "pos": [
@@ -532,9 +533,11 @@
       0.6,
       2.0
      ],
-     "anim": "saltar"
+     "anim": "saltar",
+     "vel": 0.6
     }
-   }
+   },
+   "anim_habla": false
   },
   {
    "id": 8,
