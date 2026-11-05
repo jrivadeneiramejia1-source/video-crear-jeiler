@@ -2,7 +2,7 @@
 
 ★ = skill original (MIT). Los grupos se instalan con `./instalar.sh GRUPO`; en la nube solo se instala solo `plan` (las demás pesan en descargas: se instalan al pedirlas).
 
-## Fases 4 y 5: crear (hechas)
+## Fases 4, 5 y 6: crear (hechas)
 | Skill | Cuándo usarla | Origen |
 |---|---|---|
 | ★ **plan-de-video** | Al empezar cualquier video: ficha, camino elegido, guion medido, recursos, costo y aprobaciones. | Original |
@@ -12,6 +12,8 @@
 | ★ **musica-y-efectos** | Música de fondo y efectos originales hechos con código, sin derechos de terceros. | Original |
 | ★ **video-3d** | Personajes 3D con cara y pelo creíbles usando modelos ya hechos (CC0) y Blender sin pantalla; primero imágenes fijas para aprobar. Explica también el camino de IA de video (sin probar). | Original (usa `bpy`, GPL-3, solo en tu computador; y personajes Kenney, CC0) |
 | ★ **personajes-consistentes** | Hoja de personaje, paleta, ficha y alarma de colores para que el personaje no cambie entre escenas. | Original |
+| ★ **clips-ia** | Pedir clips de IA (Kling, Seedance, Veo) con costo y «sí» antes, prueba de 5 s y el mismo personaje. **Sin probar.** | Original |
+| ★ **estudiar-video-referencia** | Sacar la receta de estilo (tiempos, ritmo, colores, sonido) de un video que te gustó, sin copiar su contenido. | Original (idea de `reelmimic`, MIT; código propio) |
 | ★ **video-infantil** | Reglas extra y revisión medible (destellos, ritmo, volumen, velocidad de narración) para videos de niños; cuento de ejemplo. | Original |
 
 | Grupo | Skills |
@@ -24,11 +26,10 @@
 | personajes | personajes-consistentes |
 | 3d | plan-de-video, personajes-consistentes, video-3d |
 | infantil | plan-de-video, animacion-2d, voz-sintetica, musica-y-efectos, video-explicativo, video-infantil |
+| clips-ia | plan-de-video, personajes-consistentes, clips-ia |
+| referencia | plan-de-video, estudiar-video-referencia |
 
-## Pendientes (fases siguientes)
-| Grupo | Skills | Fase | Estado |
-|---|---|---|---|
-| clips-ia | ★ clips-ia | 6 | pendiente |
-| referencia | ★ estudiar-video-referencia | 6 | pendiente |
+## Pendientes
+Ninguna fase de skills. Lo que sigue es probar con material real: el camino de IA de video (con el «sí» de Jeiler), un video nuevo siguiendo una receta, y que alguien escuche y mire los resultados.
 
 Pendientes menores de la fase 4: estilos de papel o acuarela para `animacion-2d` (el kit de Jeiler los tenía como filtros) y más personajes (cuerpo entero, animales).

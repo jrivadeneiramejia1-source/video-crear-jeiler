@@ -27,3 +27,10 @@ Base creada el 2026-11-04. Todavía no hay skills de terceros en este repo.
 - **Videos para niños:** la skill dice que una persona adulta debe verlos y escucharlos completos; nada se publica solo, y la skill no declara que un video «cumpla» una ley (COPPA u otra).
 - **Camino de IA de video (sin probar):** cualquier clip con IA gasta créditos y sube imágenes de referencia a un servicio externo: solo con el «sí» de Jeiler y una estimación del costo, y nunca con archivos de comunidades indígenas ni con personas reales.
 - **Búsqueda de patrones de riesgo** (`curl | sh`, `eval`, `os.system`, `shell=True`, `sudo`) y **gitleaks**: ver el commit de esta fase.
+
+## Resultado (fase 6: IA de video y videos de referencia)
+- **Sin código de terceros copiado.** `receta.py` solo llama a ffmpeg y usa numpy; no sube nada a internet. La idea viene de `reelmimic` (MIT) pero no se copió su código.
+- **Material ajeno:** los videos de referencia son de otros creadores. No entran al repo (`.gitignore` bloquea `referencias/` y `receta_*/`, que incluyen cuadros de esos videos) ni se suben a servicios externos, y no se usan como material del video nuevo. La skill separa «se copia» (estilo) de «no se copia» (texto, letra, música, código, marcas de agua, nombres de usuario).
+- **Clips de IA:** gastan créditos y suben imágenes a un servicio externo. La skill exige el «sí» de Jeiler con un costo concreto antes de cada generación, y prohíbe subir personas reales, niños o archivos de comunidades indígenas. No se generó nada.
+- **Búsqueda de patrones de riesgo** y **gitleaks**: ver el commit de esta fase.
+
