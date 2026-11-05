@@ -4,7 +4,7 @@ Uso:  python voces_historia.py ENTRADA.json CARPETA [--propias CARPETA_GRABACION
   --propias   usa grabaciones propias (ver voces_propias.py) donde las haya; el resto se hace con voz sintética (--completo: si falta alguna, parar)
 ENTRADA.json: {"voces": {"narrador": {"voz": "em_santa", "velocidad": 0.95}, "lila": {"voz": "ef_dora"}}, "lineas": [{"id": "1_1", "quien": "narrador", "texto": "..."}]}
 Deja en CARPETA: linea_<id>.wav (sin silencio al inicio) y voces.json [{id, quien, texto, archivo, dur, origen}].
-Cada voz puede traer "pausa" (segundos de silencio al final de cada coma/punto; 0 = como sale) y "ritmo": ver mejorar_texto() (la puntuación manda en el ritmo de Kokoro).
+Cada voz puede traer "pausa" (segundos de silencio al final de cada coma/punto; 0 = como sale) (la puntuación manda en el ritmo de Kokoro: ver mejorar_texto()).
 Usar el Python de la instalación de voz (~/.cache/video-jeiler/venv/bin/python, ver voz-sintetica/scripts/instalar_voz.sh)."""
 import importlib.util, json, os, pathlib, re, sys
 import numpy as np, soundfile as sf
