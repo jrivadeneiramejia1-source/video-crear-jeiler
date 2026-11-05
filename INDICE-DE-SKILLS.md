@@ -12,7 +12,7 @@
 | ★ **musica-y-efectos** | Música de fondo y efectos originales hechos con código, sin derechos de terceros. | Original |
 | ★ **video-3d** | Personajes 3D con cara y pelo creíbles usando modelos ya hechos (CC0) y Blender sin pantalla; primero imágenes fijas para aprobar. Explica también el camino de IA de video (sin probar). | Original (usa `bpy`, GPL-3, solo en tu computador; y personajes Kenney, CC0) |
 | ★ **personajes-consistentes** | Hoja de personaje, paleta, ficha y alarma de colores para que el personaje no cambie entre escenas. | Original |
-| ★ **historia-3d** | Una historia en video 3D con orden y compuertas: personajes primero y aprobados, escenario con piezas 3D, tomas y revisión de que el cuento coincida con la imagen. **Piezas probadas con imágenes fijas; video completo en pausa.** | Original (usa Kenney y Quaternius, CC0) |
+| ★ **historia-3d** | Una historia en video 3D con orden y compuertas: primero la historia y su mundo, luego los personajes a medida y aprobados, escenario con piezas 3D, tomas y revisión de que el cuento coincida con la imagen. **Probada con un cuento de 32 s.** | Original (usa Kenney y Quaternius, CC0) |
 | ★ **recursos-3d** | Catálogo de recursos 3D gratis y CC0 (personajes, animaciones, muebles, naturaleza, cielos), con lo probado y lo descartado. | Original |
 | ★ **clips-ia** | Pedir clips de IA (Kling, Seedance, Veo) con costo y «sí» antes, prueba de 5 s y el mismo personaje. **Sin probar.** | Original |
 | ★ **estudiar-video-referencia** | Sacar la receta de estilo (tiempos, ritmo, colores, sonido) de un video que te gustó, sin copiar su contenido. | Original (idea de `reelmimic`, MIT; código propio) |
@@ -34,6 +34,6 @@
 | referencia | plan-de-video, estudiar-video-referencia |
 
 ## Pendientes
-Falta el orquestador del video completo de `historia-3d` (ver `docs/PAUSA-historia-3d.md` y `docs/HALLAZGOS-herramientas-2026-11-05.md`). Después, probar con material real: el camino de IA de video (con el «sí» de Jeiler), un video nuevo siguiendo una receta, y que alguien escuche y mire los resultados.
+Falta lo que solo una persona puede juzgar (oír las voces y mirar el movimiento del cuento de prueba) y lo marcado como pendiente en `docs/ESTADO-historia-3d.md`. Después, probar con material real: el camino de IA de video (con el «sí» de Jeiler), un video nuevo siguiendo una receta, y que alguien escuche y mire los resultados.
 
 Pendientes menores de la fase 4: estilos de papel o acuarela para `animacion-2d` (el kit de Jeiler los tenía como filtros) y más personajes (cuerpo entero, animales).

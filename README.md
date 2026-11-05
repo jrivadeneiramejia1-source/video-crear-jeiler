@@ -6,7 +6,9 @@ Es la pareja de `video-editar-jeiler` (cortar, limpiar el audio, subtitular, com
 Cada carpeta de `skills/` es una skill: un archivo `SKILL.md` con instrucciones para que Claude sepa cuándo y cómo usarla.
 
 ## Estado: fases 4, 5 y 6 hechas (crear)
-Hay 12 skills: `plan-de-video`, `animacion-2d`, `video-explicativo`, `voz-sintetica`, `musica-y-efectos`, `video-3d`, `personajes-consistentes`, `video-infantil`, `clips-ia` (**sin probar**), `estudiar-video-referencia`, `historia-3d` (piezas probadas; **video completo en pausa**) y `recursos-3d`. El orden y los grupos están en `INDICE-DE-SKILLS.md`. Lo probado y lo no probado: `PRUEBAS.md`.
+Hay 12 skills: `plan-de-video`, `animacion-2d`, `video-explicativo`, `voz-sintetica`, `musica-y-efectos`, `video-3d`, `personajes-consistentes`, `video-infantil`, `clips-ia` (**sin probar**), `estudiar-video-referencia`, `historia-3d` (probada con un cuento de 32 s) y `recursos-3d`. El orden y los grupos están en `INDICE-DE-SKILLS.md`. Lo probado y lo no probado: `PRUEBAS.md`.
+
+**¿Quieres pedir un video?** Lee `COMO-PEDIR-UN-VIDEO.md` (qué decirme y en qué orden trabajo).
 
 ## Cómo usarlas (cuando haya skills)
 Una skill solo funciona si está en la carpeta de skills de Claude (`~/.claude/skills/`). El instalador copia por grupos:
@@ -20,6 +22,9 @@ Una skill solo funciona si está en la carpeta de skills de Claude (`~/.claude/s
 ./instalar.sh historia3d     # historias en 3D: personajes, escenario, tomas y recursos
 ```
 **En sesiones en la nube** se instalan solos los grupos de `grupos-activos.txt`, con un hook de inicio en `.claude/`; solo funciona si este repo está cargado como repo de la sesión. El instalador no pisa una skill que ya exista con el mismo nombre y que no haya instalado él. Mejor pocos grupos a la vez: cada skill agrega su descripción al contexto y eso gasta tokens.
+
+## Dónde funciona
+Pensado para **sesiones en la nube de Claude (Linux)**: los instaladores son scripts `.sh` y el 3D usa Blender sin pantalla (Cycles en CPU, sin tarjeta gráfica). En Windows o Mac no corren tal cual (usar la nube o WSL). Un video 3D de 30 s tarda cerca de una hora y media de cálculo.
 
 ## Reglas
 - Repo **público**: nunca datos de personas (ver `SEGURIDAD.md` y `CLAUDE.md`).

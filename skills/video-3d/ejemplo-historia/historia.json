@@ -24,7 +24,8 @@
    "ancho": 6,
    "largo": 4,
    "ventana_x": 0,
-   "pared": "#F3DDB8"
+   "pared": "#EAD2AA",
+   "luz_interior": 150
   },
   "piezas": [
    {
@@ -72,9 +73,9 @@
    }
   ],
   "exterior": {
-   "pasto": "#7FB069",
-   "arcoiris_x": -0.2,
-   "arcoiris_y": 7.5,
+   "pasto": "#6BA55A",
+   "arcoiris_x": 0.0,
+   "arcoiris_y": 14,
    "arboles": [
     {
      "x": -4,
@@ -105,31 +106,59 @@
      "x": 0.3,
      "y": 4.5
     }
-   ]
+   ],
+   "cielos": {
+    "lluvia": "overcast_soil_puresky",
+    "despejado": "kloofendal_48d_partly_cloudy_puresky",
+    "arcoiris": "kloofendal_48d_partly_cloudy_puresky"
+   }
   }
  },
  "tomas": [
   {
    "id": 1,
-   "dur": 4.5,
    "cielo": "lluvia",
    "muestra": [
     "ventana",
     "lluvia",
     "lila"
    ],
+   "pausa_inicio": 0.6,
+   "lineas": [
+    {
+     "quien": "narrador",
+     "texto": "Hoy te cuento un cuento corto."
+    },
+    {
+     "quien": "narrador",
+     "texto": "Se llama Lila y el arcoíris."
+    }
+   ],
    "camara": {
     "pos": [
      0,
-     -1.9,
-     1.5
+     -2.5,
+     1.2
     ],
     "mira": [
      0,
      1.2,
-     1.15
+     1.0
     ],
-    "lente": 26
+    "lente": 24,
+    "hasta": {
+     "pos": [
+      0,
+      -2.0,
+      1.2
+     ],
+     "mira": [
+      0,
+      1.2,
+      1.0
+     ],
+     "lente": 24
+    }
    },
    "personajes": {
     "lila": {
@@ -146,35 +175,40 @@
   },
   {
    "id": 2,
-   "dur": 5.0,
    "cielo": "lluvia",
    "muestra": [
     "lila",
     "ventana",
     "lluvia"
    ],
+   "lineas": [
+    {
+     "quien": "narrador",
+     "texto": "Lila miraba llover por la ventana."
+    }
+   ],
    "camara": {
     "pos": [
-     -1.8,
-     -1.0,
-     1.35
+     -1.7,
+     -0.5,
+     1.3
     ],
     "mira": [
-     -0.2,
-     1.7,
-     1.0
+     0.1,
+     1.9,
+     1.15
     ],
     "lente": 30,
     "hasta": {
      "pos": [
-      -1.3,
-      -0.8,
-      1.35
+      -1.35,
+      -0.3,
+      1.3
      ],
      "mira": [
-      -0.2,
-      1.7,
-      1.0
+      0.1,
+      1.9,
+      1.15
      ],
      "lente": 30
     }
@@ -182,11 +216,11 @@
    "personajes": {
     "lila": {
      "pos": [
-      -0.3,
-      1.3
+      -0.8,
+      1.45
      ],
      "mira_a": [
-      -0.3,
+      -0.1,
       2.0
      ],
      "cabeza_a": [
@@ -195,15 +229,21 @@
       1.5
      ]
     }
-   }
+   },
+   "plano": "medio"
   },
   {
    "id": 3,
-   "dur": 5.5,
    "cielo": "lluvia",
    "muestra": [
     "lila",
     "tito"
+   ],
+   "lineas": [
+    {
+     "quien": "tito",
+     "texto": "¡Qué lástima! No podemos salir a jugar."
+    }
    ],
    "camara": {
     "pos": [
@@ -255,11 +295,20 @@
   },
   {
    "id": 4,
-   "dur": 5.0,
    "cielo": "lluvia",
    "muestra": [
     "lila",
     "tito"
+   ],
+   "lineas": [
+    {
+     "quien": "narrador",
+     "texto": "Pero Lila sonrió."
+    },
+    {
+     "quien": "lila",
+     "texto": "Esperemos un poquito."
+    }
    ],
    "camara": {
     "pos": [
@@ -287,7 +336,7 @@
      "gestos": [
       {
        "g": "asiente",
-       "t": 1.0,
+       "t": 2.2,
        "dur": 2.0
       }
      ]
@@ -305,7 +354,7 @@
       {
        "g": "preocupado",
        "t": 0.0,
-       "dur": 5
+       "dur": 6
       }
      ]
     }
@@ -313,43 +362,48 @@
   },
   {
    "id": 5,
-   "dur": 6.0,
    "cielo": {
     "de": "lluvia",
     "a": "arcoiris",
-    "en": 1.6,
-    "dura": 2.0
+    "en": 0.6,
+    "dura": 2.2
    },
    "muestra": [
-    "ventana",
-    "arcoiris",
     "lila",
-    "tito"
+    "tito",
+    "ventana"
+   ],
+   "cola": 1.2,
+   "lineas": [
+    {
+     "quien": "narrador",
+     "texto": "Y cuando paró la lluvia..."
+    }
    ],
    "camara": {
     "pos": [
      0.1,
-     -1.5,
-     1.2
+     -2.1,
+     1.1
     ],
     "mira": [
      0.1,
      2.0,
-     1.4
+     1.15
     ],
-    "lente": 30,
+    "lente": 24,
     "hasta": {
      "pos": [
       0.1,
-      -0.9,
-      1.2
+      -1.7,
+      1.1
      ],
      "mira": [
       0.05,
       2.0,
-      1.45
+      1.2
      ],
-     "lente": 30
+     "lente": 24
     }
    },
    "personajes": {
@@ -366,13 +420,6 @@
       0,
       6,
       2.2
-     ],
-     "gestos": [
-      {
-       "g": "senala",
-       "t": 2.6,
-       "dur": 3.0
-      }
      ]
     },
     "tito": {
@@ -394,25 +441,75 @@
   },
   {
    "id": 6,
-   "dur": 5.0,
+   "cielo": "arcoiris",
+   "muestra": [
+    "ventana",
+    "arcoiris"
+   ],
+   "lineas": [
+    {
+     "quien": "narrador",
+     "texto": "¡Apareció un arcoíris!"
+    }
+   ],
+   "cola": 1.6,
+   "camara": {
+    "pos": [
+     0,
+     1.35,
+     1.45
+    ],
+    "mira": [
+     0,
+     6,
+     1.9
+    ],
+    "lente": 24,
+    "hasta": {
+     "pos": [
+      0,
+      1.55,
+      1.45
+     ],
+     "mira": [
+      0,
+      6,
+      1.9
+     ],
+     "lente": 24
+    }
+   },
+   "personajes": {}
+  },
+  {
+   "id": 7,
    "cielo": "arcoiris",
    "muestra": [
     "lila",
-    "tito",
-    "arcoiris"
+    "tito"
+   ],
+   "lineas": [
+    {
+     "quien": "lila",
+     "texto": "¡Mira, Tito, un arcoíris!"
+    },
+    {
+     "quien": "tito",
+     "texto": "¡Qué bonito!"
+    }
    ],
    "camara": {
     "pos": [
      0,
      -2.4,
-     1.0
+     0.9
     ],
     "mira": [
      0,
      1.2,
-     1.3
+     0.95
     ],
-    "lente": 28
+    "lente": 26
    },
    "personajes": {
     "lila": {
@@ -424,7 +521,8 @@
       -0.6,
       2.0
      ],
-     "anim": "saltar"
+     "anim": "saltar",
+     "vel": 0.6
     },
     "tito": {
      "pos": [
@@ -435,17 +533,25 @@
       0.6,
       2.0
      ],
-     "anim": "saltar"
+     "anim": "saltar",
+     "vel": 0.6
     }
-   }
+   },
+   "anim_habla": false
   },
   {
-   "id": 7,
-   "dur": 4.5,
+   "id": 8,
    "cielo": "arcoiris",
    "muestra": [
     "lila",
     "tito"
+   ],
+   "cola": 1.5,
+   "lineas": [
+    {
+     "quien": "narrador",
+     "texto": "A veces, esperar trae cosas bonitas."
+    }
    ],
    "camara": {
     "pos": [
@@ -486,8 +592,8 @@
      "gestos": [
       {
        "g": "saluda",
-       "t": 0.5,
-       "dur": 3.5
+       "t": 0.6,
+       "dur": 3.0
       }
      ]
     },
@@ -503,5 +609,33 @@
     }
    }
   }
- ]
+ ],
+ "mundo": {
+  "lugar": "el cuarto de Lila, en una casa",
+  "clima": "día de lluvia que termina con un arcoíris",
+  "tono": "tierno y tranquilo, para niños pequeños",
+  "formalidad": "ropa cómoda de casa",
+  "por_que_la_ropa": "Lila lleva una camiseta amarilla (un rayito de sol en un día gris) y Tito una verde; ropa de estar en casa, sin dibujos que asusten"
+ },
+ "voces": {
+  "narrador": {
+   "voz": "em_santa",
+   "velocidad": 0.92
+  },
+  "lila": {
+   "voz": "ef_dora",
+   "velocidad": 0.95
+  },
+  "tito": {
+   "voz": "em_alex",
+   "velocidad": 1.0
+  }
+ },
+ "musica": {
+  "animo": "calmo",
+  "tono": "G",
+  "lufs": -14,
+  "lufs_relativo": -20
+ },
+ "exposicion": -0.6
 }

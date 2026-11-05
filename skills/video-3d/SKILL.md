@@ -20,7 +20,7 @@ description: Hace videos con personajes 3D que se ven bien (cara, pelo y manos c
 ## Herramientas (probadas con imágenes fijas)
 | Herramienta | Para qué |
 |---|---|
-| `scripts/escena_blender.py` | Un solo personaje, vistas fijas o un clip corto (ver abajo). |
+| `scripts/escena_blender.py` | Un solo personaje, vistas fijas o un clip corto (ver abajo). **Limitado:** solo sirve con el paquete *Animated Characters 1*; con *Animated Characters 2* y otros el personaje sale en «T» (brazos abiertos) porque la animación parte de otra pose. Para todo lo demás usar `escena3d.py`. |
 | `scripts/escena3d.py` | **Historias completas:** cuarto con muebles, ventana 3D, exterior, lluvia, arcoíris, cielos reales, varios personajes, gestos y cámaras; hoja de personajes (`--hoja`); revisa que lo que dice el cuento se vea (`muestra`). Ver la skill `historia-3d`. |
 | `scripts/personalizar_piel.py` | Cambiar pelo y ropa, o quitar dibujos (una calavera), desde el SVG de origen de la piel de Kenney. |
 | `scripts/descargar_personajes.sh`, `descargar_recursos.sh`, `descargar_cielo.py` | Personajes, muebles, naturaleza, animaciones y cielos (todo CC0). Catálogo: skill `recursos-3d`. |
