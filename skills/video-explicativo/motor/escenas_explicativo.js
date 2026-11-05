@@ -99,6 +99,7 @@ registrarEscena('cierre', (e, tl, c) => {
   let s = fondoDecorado(c.t); const k = easeOut(seg(tl, .05, .7)), p = parrafo(W / 2, 0, e.texto, (V ? 58 : 62) * U, 800, TEMA.tinta, W * .84, 'middle', 1.15);
   const gy = H * .38 - p.h / 2; if (e.icono) s += marcaVisual(e.icono, W / 2, gy - 70 * U, 110 * U, TEMA.acento, k);
   s += `<g transform="translate(0 ${f(gy + (1 - k) * 30)})" opacity="${f(k)}">${p.svg}</g>`;
-  (e.creditos || []).forEach((l, i) => { s += T(W / 2, H * .62 + i * 40 * U, l, 26 * U, 600, TEMA.gris, 'middle', `opacity="${f(easeOut(seg(tl, 1 + i * .3, 1.6 + i * .3)))}"`); });
+  let yc = H * .62;   // créditos: cada línea se parte en renglones para que no se salga de la pantalla (vertical)
+  (e.creditos || []).forEach((l, i) => { const op = `opacity="${f(easeOut(seg(tl, 1 + i * .3, 1.6 + i * .3)))}"`; envolver(l, 26 * U, 600, W - 90 * U).forEach(r => { s += T(W / 2, yc, r, 26 * U, 600, TEMA.gris, 'middle', op); yc += 34 * U; }); yc += 8 * U; });
   return s;
 });

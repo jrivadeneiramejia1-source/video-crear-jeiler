@@ -1,26 +1,165 @@
 {
   "titulo": "Lila y el arcoíris",
-  "voz": "ef_dora", "velocidad": 0.9, "marca": "Cuento de ejemplo inventado",
-  "musica": {"animo": "calmo", "tono": "G", "volumen_lufs": -27},
+  "voz": "ef_dora",
+  "velocidad": 0.8,
+  "marca": "Cuento de ejemplo inventado",
+  "musica": {
+    "animo": "calmo",
+    "tono": "G",
+    "volumen_lufs": -27
+  },
   "escenas": [
-    {"tipo": "titulo", "texto": "Lila y el arcoíris", "detalle": "Un cuento corto", "icono": "arcoiris",
-     "narracion": ["Hoy te cuento un cuento corto.", "Se llama Lila y el arcoíris."]},
-    {"tipo": "personajes", "rotulo": "Un día de lluvia",
-     "personajes": [
-       {"x": 0.30, "y": 0.66, "s": 1.0, "mood": "smile", "piel": "#E8B98F", "pelo": "#3B2A20", "pelo_estilo": "largo", "camisa": "#2A9D8F"},
-       {"x": 0.70, "y": 0.66, "s": 0.9, "mood": "worry", "piel": "#C98B5A", "pelo": "#1F1612", "pelo_estilo": "rizos", "camisa": "#F4B942"}],
-     "objetos": [{"icono": "nube", "x": 0.5, "y": 0.2, "s": 150, "color": "#9FB3C8", "desde": 0.2}, {"icono": "gota", "x": 0.42, "y": 0.36, "s": 44, "color": "#5B9BD5", "desde": 0.8}, {"icono": "gota", "x": 0.58, "y": 0.4, "s": 44, "color": "#5B9BD5", "desde": 1.2}],
-     "dialogo": [{"quien": 1, "texto": "¡No podemos salir a jugar!", "frase": 1}, {"quien": 0, "texto": "Esperemos un poquito.", "frase": 2}],
-     "narracion": ["Lila miraba llover por la ventana.", "Tito dijo: no podemos salir a jugar.", "Pero Lila sonrió y esperó un poquito."]},
-    {"tipo": "personajes", "rotulo": "¡Mira!",
-     "personajes": [
-       {"x": 0.30, "y": 0.66, "s": 1.0, "mood": "laugh", "piel": "#E8B98F", "pelo": "#3B2A20", "pelo_estilo": "largo", "camisa": "#2A9D8F"},
-       {"x": 0.70, "y": 0.66, "s": 0.9, "mood": "surprise", "piel": "#C98B5A", "pelo": "#1F1612", "pelo_estilo": "rizos", "camisa": "#F4B942"}],
-     "objetos": [{"icono": "sol", "x": 0.85, "y": 0.16, "s": 110, "color": "#F4B942", "desde": 0.2}, {"icono": "arcoiris", "x": 0.5, "y": 0.26, "s": 380, "desde": 1.0}],
-     "dialogo": [{"quien": 0, "texto": "¡Un arcoíris!", "frase": 0}, {"quien": 1, "texto": "¡Qué bonito!", "frase": 1}],
-     "narracion": ["Cuando paró la lluvia, apareció un arcoíris.", "¡Qué bonito!, dijeron los dos."]},
-    {"tipo": "cierre", "texto": "A veces, esperar trae cosas bonitas", "icono": "corazon",
-     "creditos": ["Cuento inventado para este ejemplo", "Voz sintética (Kokoro) y música original generada por código", "Dibujos hechos con código"],
-     "narracion": ["A veces, esperar trae cosas bonitas.", "Hasta pronto, amiguitos."]}
+    {
+      "tipo": "titulo",
+      "texto": "Lila y el arcoíris",
+      "detalle": "Un cuento corto",
+      "icono": "arcoiris",
+      "narracion": [
+        "Hoy te cuento un cuento corto.",
+        "Se llama Lila y el arcoíris."
+      ]
+    },
+    {
+      "tipo": "personajes",
+      "rotulo": "Un día de lluvia",
+      "personajes": [
+        {
+          "x": 0.25,
+          "y": 0.66,
+          "s": 1.0,
+          "mood": "smile",
+          "piel": "#E8B98F",
+          "pelo": "#3B2A20",
+          "pelo_estilo": "largo",
+          "camisa": "#2A9D8F"
+        },
+        {
+          "x": 0.75,
+          "y": 0.66,
+          "s": 0.9,
+          "mood": "worry",
+          "piel": "#C98B5A",
+          "pelo": "#1F1612",
+          "pelo_estilo": "rizos",
+          "camisa": "#F4B942"
+        }
+      ],
+      "objetos": [
+        {
+          "icono": "nube",
+          "x": 0.5,
+          "y": 0.27,
+          "s": 120,
+          "color": "#9FB3C8",
+          "desde": 0.2
+        },
+        {
+          "icono": "gota",
+          "x": 0.47,
+          "y": 0.35,
+          "s": 40,
+          "color": "#5B9BD5",
+          "desde": 0.8
+        },
+        {
+          "icono": "gota",
+          "x": 0.53,
+          "y": 0.41,
+          "s": 40,
+          "color": "#5B9BD5",
+          "desde": 1.2
+        }
+      ],
+      "dialogo": [
+        {
+          "quien": 1,
+          "texto": "¡No podemos salir a jugar!",
+          "frase": 1
+        },
+        {
+          "quien": 0,
+          "texto": "Esperemos un poquito.",
+          "frase": 2
+        }
+      ],
+      "narracion": [
+        "Lila miraba llover por la ventana.",
+        "Tito dijo: no podemos salir a jugar.",
+        "Pero Lila sonrió y esperó un poquito."
+      ]
+    },
+    {
+      "tipo": "personajes",
+      "rotulo": "¡Mira!",
+      "personajes": [
+        {
+          "x": 0.25,
+          "y": 0.66,
+          "s": 1.0,
+          "mood": "laugh",
+          "piel": "#E8B98F",
+          "pelo": "#3B2A20",
+          "pelo_estilo": "largo",
+          "camisa": "#2A9D8F"
+        },
+        {
+          "x": 0.75,
+          "y": 0.66,
+          "s": 0.9,
+          "mood": "surprise",
+          "piel": "#C98B5A",
+          "pelo": "#1F1612",
+          "pelo_estilo": "rizos",
+          "camisa": "#F4B942"
+        }
+      ],
+      "objetos": [
+        {
+          "icono": "sol",
+          "x": 0.9,
+          "y": 0.24,
+          "s": 90,
+          "color": "#F4B942",
+          "desde": 0.2
+        },
+        {
+          "icono": "arcoiris",
+          "x": 0.5,
+          "y": 0.3,
+          "s": 250,
+          "desde": 1.0
+        }
+      ],
+      "dialogo": [
+        {
+          "quien": 0,
+          "texto": "¡Un arcoíris!",
+          "frase": 0
+        },
+        {
+          "quien": 1,
+          "texto": "¡Qué bonito!",
+          "frase": 1
+        }
+      ],
+      "narracion": [
+        "Cuando paró la lluvia, apareció un arcoíris.",
+        "¡Qué bonito!, dijeron los dos."
+      ]
+    },
+    {
+      "tipo": "cierre",
+      "texto": "A veces, esperar trae cosas bonitas",
+      "icono": "corazon",
+      "creditos": [
+        "Cuento inventado para este ejemplo",
+        "Voz sintética (Kokoro) y música original generada por código",
+        "Dibujos hechos con código"
+      ],
+      "narracion": [
+        "A veces, esperar trae cosas bonitas.",
+        "Hasta pronto, amiguitos."
+      ]
+    }
   ]
 }

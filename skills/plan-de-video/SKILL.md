@@ -1,6 +1,7 @@
 ---
 name: plan-de-video
-description: Convierte una idea de video en un plan de producción: pregunta lo que falta (público, tipo, duración, formatos, voz, música, plataforma, presupuesto), elige el camino más adecuado entre explicativo, cuento animado 2D, video con una persona real, 3D o clips de IA, mide el guion y deja una ficha con escenas, recursos, licencias, costo y aprobaciones. Usar al empezar CUALQUIER video, cuando el usuario diga "quiero hacer un video de...", "ayúdame con el guion de un video", "qué necesito para hacer este video" o antes de gastar créditos. Propone alternativas que el usuario quizá no conoce.
+description: >-
+  Convierte una idea de video en un plan de producción: pregunta lo que falta (público, tipo, duración, formatos, voz, música, plataforma, presupuesto), elige el camino más adecuado entre explicativo, cuento animado 2D, video con una persona real, 3D o clips de IA, mide el guion y deja una ficha con escenas, recursos, licencias, costo y aprobaciones. Usar al empezar CUALQUIER video, cuando el usuario diga "quiero hacer un video de...", "ayúdame con el guion de un video", "qué necesito para hacer este video" o antes de gastar créditos. Propone alternativas que el usuario quizá no conoce.
 ---
 
 # Plan de video

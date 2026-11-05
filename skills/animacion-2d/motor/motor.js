@@ -108,8 +108,8 @@ registrarEscena('personajes', (e, tl, c) => {
   if (e.suelo !== false) s += `<rect x="0" y="${f(H * .8)}" width="${W}" height="${f(H * .2)}" fill="${TEMA.acento2}" opacity=".18"/>`;
   const ps = e.personajes || [];
   ps.forEach((p, i) => { const ent = easeOut(seg(tl, .1 + i * .2, .7 + i * .2)); s += personaje(Object.assign({}, p, { x: p.x * W, y: p.y * H + (1 - ent) * 40 * U, s: (p.s || 1) * U * (V ? 1 : 1), t: c.t, ph: i * 1.7, op: ent })); });
-  (e.dialogo || []).forEach(d => { const p = ps[d.quien || 0]; if (!p) return; const q = seg(tl, d.a, d.a + .4) * (1 - seg(tl, d.b - .3, d.b)); s += globo(clamp(p.x, .25, .75) * W, p.y * H - 200 * U * (p.s || 1) - 40 * U, d.texto, q, 30, p.x * W, p.y * H - 150 * U * (p.s || 1)); });
   (e.objetos || []).forEach(o => { const q = easeOut(seg(tl, o.desde || 0, (o.desde || 0) + .7)); if (q > 0) s += icono(o.icono, o.x * W, o.y * H + (1 - q) * 20 * U, (o.s || 120) * U * (.6 + .4 * q), o.color || TEMA.acento, q); });   // objetos del cielo o del suelo (arcoíris, sol, gotas...)
+  (e.dialogo || []).forEach(d => { const p = ps[d.quien || 0]; if (!p) return; const q = seg(tl, d.a, d.a + .4) * (1 - seg(tl, d.b - .3, d.b)); s += globo(clamp(p.x, .25, .75) * W, p.y * H - 200 * U * (p.s || 1) - 40 * U, d.texto, q, 30, p.x * W, p.y * H - 150 * U * (p.s || 1)); });
   if (e.rotulo) s += T(W / 2, H * .13, e.rotulo, 44 * U, 800, TEMA.tinta, 'middle', `opacity="${f(easeOut(seg(tl, .1, .6)))}"`);
   return s;
 });

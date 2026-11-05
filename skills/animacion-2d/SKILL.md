@@ -1,6 +1,7 @@
 ---
 name: animacion-2d
-description: Motor para dibujar animaciones 2D sencillas con código (sin programas de dibujo ni internet): personajes de busto con ánimos, globos de diálogo, tarjetas de texto, subtítulos y transiciones, en horizontal o vertical desde el mismo proyecto. Se describe el video en un archivo JSON y se renderiza cuadro a cuadro. Usar cuando el usuario diga "una animación de...", "un cuento animado", "dibujitos sencillos", "un corto 2D" o "personajes que hablen". Para explicar o comparar con gráficos usar video-explicativo. No hace 3D ni realismo.
+description: >-
+  Motor para dibujar animaciones 2D sencillas con código (sin programas de dibujo ni internet): personajes de busto con ánimos, globos de diálogo, tarjetas de texto, subtítulos y transiciones, en horizontal o vertical desde el mismo proyecto. Se describe el video en un archivo JSON y se renderiza cuadro a cuadro. Usar cuando el usuario diga "una animación de...", "un cuento animado", "dibujitos sencillos", "un corto 2D" o "personajes que hablen". Para explicar o comparar con gráficos usar video-explicativo. No hace 3D ni realismo.
 ---
 
 # Animación 2D con código

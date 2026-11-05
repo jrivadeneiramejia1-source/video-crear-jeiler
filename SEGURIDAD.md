@@ -19,3 +19,11 @@ Base creada el 2026-11-04. Todavía no hay skills de terceros en este repo.
 - **Internet:** solo `instalar_voz.sh` (github.com: modelos de Kokoro; pypi.org: paquetes) e `instalar_render.sh` (pypi.org; y el sitio de Playwright si no hay ningún Chromium). El resto corre sin conexión. Los instaladores usan un Python propio (`~/.cache/video-jeiler/venv`) y no tocan el del sistema. No verifican una huella de los modelos descargados: pendiente.
 - **Privacidad:** el motor y los ejemplos usan personajes y textos inventados; el kit original de Jeiler (con nombres e historias reales) se quedó fuera del repo. `crear_explicativo.py` incrusta imágenes del guion dentro de un archivo temporal para dibujarlas; no sube nada.
 - **Búsqueda de patrones de riesgo** (`curl | sh`, `eval`, `exec`, `os.system`, `shell=True`, `sudo`): ninguno. **gitleaks:** 0 hallazgos.
+
+## Resultado (fase 5: 3D, personajes consistentes, infantil)
+- **Sin código de terceros copiado.** `escena_blender.py` y `hoja_personaje.py` solo corren dentro de `bpy` en el computador local; `comparar_cuadros.py` y `revisar_infantil.py` solo llaman a ffmpeg y numpy.
+- **Internet:** `instalar_blender.sh` (pypi.org, ~400 MB: el paquete `bpy`) y `descargar_personajes.sh` (opengameart.org: zips de Kenney; **verifica que `License.txt` diga CC0** y, si no, no instala). No verifican una huella de los archivos descargados: pendiente. Los instaladores usan un Python propio (`~/.cache/video-jeiler/venv-blender`) y no tocan el del sistema.
+- **Privacidad:** los personajes 3D son modelos públicos de licencia libre y viven fuera del repo; los ejemplos infantiles son inventados (nada de niños, nombres ni voces reales). `.gitignore` bloquea además `__pycache__`.
+- **Videos para niños:** la skill dice que una persona adulta debe verlos y escucharlos completos; nada se publica solo, y la skill no declara que un video «cumpla» una ley (COPPA u otra).
+- **Camino de IA de video (sin probar):** cualquier clip con IA gasta créditos y sube imágenes de referencia a un servicio externo: solo con el «sí» de Jeiler y una estimación del costo, y nunca con archivos de comunidades indígenas ni con personas reales.
+- **Búsqueda de patrones de riesgo** (`curl | sh`, `eval`, `os.system`, `shell=True`, `sudo`) y **gitleaks**: ver el commit de esta fase.

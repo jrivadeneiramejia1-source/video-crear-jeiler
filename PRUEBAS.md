@@ -1,5 +1,5 @@
 # Qué se probó de verdad
-Las pruebas de la fase 4 (2026-11-04) usaron proyectos y textos **inventados**. Cada fase agrega aquí una fila por skill con: estado, qué se probó y qué no.
+Las pruebas de las fases 4 y 5 (2026-11-04 y 2026-11-05) usaron proyectos y textos **inventados**. Cada fase agrega aquí una fila por skill con: estado, qué se probó y qué no.
 
 | Skill | Estado | Qué se probó |
 |---|---|---|
@@ -8,3 +8,7 @@ Las pruebas de la fase 4 (2026-11-04) usaron proyectos y textos **inventados**. 
 | **voz-sintetica** | Probada | Instalador real; 115 palabras entendidas al 98,3 % por un reconocedor; tres voces de español; tiempos por frase. Sin oyentes: la naturalidad la decide Jeiler. |
 | **musica-y-efectos** | Probada solo con medidas | Cuatro ánimos de 30 s (pico -6,0 dBFS; -17,7 a -20,3 LUFS) y seis efectos; espectrograma revisado. Nadie la ha escuchado. |
 | **video-explicativo** | Probada con un ejemplo inventado | Video de 58,57 s en horizontal y vertical: `check.py` sin FAIL para YouTube y Shorts; subtítulos 100 % iguales a la voz re-transcrita (desfase medio 0,07 s). Seis errores de diseño y audio encontrados al mirar y corregidos. Sin probar: `--hd` completo, imágenes de marcas, `barras`, guiones largos, oyentes. |
+| **video-3d** | Camino B probado; camino A **sin probar** | `bpy` 5.2.3 instalado de verdad; descarga de personajes CC0 de Kenney probada; tres fijas (cuerpo, medio, rostro) en 5,6 a 7,1 s cada una; clip de 5 s (120 cuadros a 960x540, 684 s en un computador de 4 núcleos) con cara, pelo y manos sin deformarse; `check.py` sin FAIL. Errores encontrados y corregidos: encuadre demasiado cerca, suelo quemado de luz, EEVEE se cae sin tarjeta gráfica (se usa Cycles). **Sin probar:** IA de video (Canva pide plan de pago, no aparecieron las herramientas de generar de Higgsfield: no se gastó nada), 1080p, labios sincronizados, varios personajes, cámara en movimiento, otros computadores. |
+| **personajes-consistentes** | Probada con un solo personaje | Hoja de 4 vistas con el pelo completo; la comparación de colores dio 0,09 con el mismo personaje y 0,35 con otra piel (umbral 0,25: **pocos datos**). Sin probar: 2D, IA, varios personajes, cambios de luz. |
+| **video-infantil** | Probada con un cuento inventado | Cuento de 29,9 s en horizontal y vertical; el revisor encontró 150 palabras por minuto en la primera versión (corregido a 126); cuatro errores de diseño hallados mirando cuadros y corregidos; `check.py` sin fallas. Sin probar: audio escuchado, niños reales, reglas oficiales de plataformas, ritmo con fundidos. |
+

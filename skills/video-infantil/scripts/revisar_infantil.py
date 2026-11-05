@@ -6,7 +6,7 @@ Uso:  python3 revisar_infantil.py VIDEO [--srt SUBTITULOS.srt]
 Mide:
  1) destellos: cambios fuertes de brillo seguidos; más de 3 en un segundo es el límite de la guía de accesibilidad WCAG 2.3.1 (riesgo para niños y adultos
     sensibles a luces). Aquí es una estimación simplificada (brillo medio del cuadro): no reemplaza una prueba formal.
- 2) ritmo visual: cortes de escena por minuto (guía sin calibrar: más de 12 por minuto es muy movido para niños pequeños).
+ 2) ritmo visual: cortes SECOS de escena por minuto (los fundidos suaves no se cuentan; guía sin calibrar: más de 12 por minuto es muy movido para niños pequeños).
  3) sustos de sonido: el momento más fuerte contra el volumen típico (la mediana; más de 8 LU de diferencia = golpe de volumen) y el pico real (> -1 dBTP).
  4) con --srt: letras por segundo y palabras por minuto (guía sin calibrar: más de 15 letras por segundo o 140 palabras por minuto es rápido para niños;
     los más pequeños casi no leen: conviene narrar).
@@ -42,7 +42,7 @@ if peor > 3: av.append("destellos")
 # 2) ritmo visual
 sc = run("ffmpeg", "-nostdin", "-i", video, "-vf", "select='gt(scene,0.35)',showinfo", "-an", "-f", "null", "-")
 cortes = len(re.findall(r"pts_time:", sc.stderr)); porminuto = cortes / dur * 60 if dur else 0
-print(f"2) ritmo visual: {cortes} cortes de escena, {porminuto:.1f} por minuto (guía: hasta 12)  {'OK' if porminuto <= 12 else '<-- AVISO: muy movido'}")
+print(f"2) ritmo visual: {cortes} cortes secos de escena (fundidos no cuentan), {porminuto:.1f} por minuto (guía: hasta 12)  {'OK' if porminuto <= 12 else '<-- AVISO: muy movido'}")
 if porminuto > 12: av.append("ritmo visual")
 
 # 3) sonido

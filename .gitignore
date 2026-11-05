@@ -16,3 +16,5 @@ privado/
 *.mkv
 *.webm
 .DS_Store
+__pycache__/
+*.pyc

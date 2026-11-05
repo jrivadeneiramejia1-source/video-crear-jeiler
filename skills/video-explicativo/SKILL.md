@@ -1,6 +1,7 @@
 ---
 name: video-explicativo
-description: Crea un video explicativo completo y gratis a partir de un guion: voz sintética en español, escenas animadas (título, listas, comparaciones, pasos, números, barras y cierre), subtítulos y música original, en horizontal y en vertical desde el mismo guion. Usar cuando el usuario diga "un video que explique...", "compara A con B en un video", "un video de pasos o de consejos", "un explicativo corto" o "hazme un Short que explique". No hace cuentos con personajes (usar animacion-2d), 3D ni videos con una persona real (usar video-editar-jeiler).
+description: >-
+  Crea un video explicativo completo y gratis a partir de un guion: voz sintética en español, escenas animadas (título, listas, comparaciones, pasos, números, barras y cierre), subtítulos y música original, en horizontal y en vertical desde el mismo guion. Usar cuando el usuario diga "un video que explique...", "compara A con B en un video", "un video de pasos o de consejos", "un explicativo corto" o "hazme un Short que explique". No hace cuentos con personajes (usar animacion-2d), 3D ni videos con una persona real (usar video-editar-jeiler).
 ---
 
 # Video explicativo
