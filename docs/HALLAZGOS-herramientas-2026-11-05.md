@@ -19,7 +19,6 @@ Ver la tabla de `skills/recursos-3d/SKILL.md`: Universal Base Characters (no se 
 - `agmmnn/polydown` (MIT): descargador de Poly Haven; se escribió uno propio y pequeño (`descargar_cielo.py`, solo librería estándar).
 
 ## Lo que sigue faltando (para el video de prueba)
-1. `crear_historia3d.py`: orquestador (voces por personaje, música, subtítulos, mezcla y revisión).
-2. Arcoíris y pared/luz afinados (ver `docs/PAUSA-historia-3d.md`).
-3. Más personajes (KayKit, Universal Base Characters bajados a mano por Jeiler) y sillas/sillones donde sentarse.
-4. Boca: las caras de Kenney son dibujos fijos; para labios habría que usar personajes con boca animable (Universal Base Characters, MPFB2).
+1. (Hecho el mismo día: `crear_historia3d.py` y el cuento de prueba; ver `docs/ESTADO-historia-3d.md`.)
+2. Más personajes (KayKit, Universal Base Characters bajados a mano por Jeiler) y sillas/sillones donde sentarse.
+3. Boca: las caras de Kenney son dibujos fijos; para labios habría que usar personajes con boca animable (Universal Base Characters, MPFB2).
