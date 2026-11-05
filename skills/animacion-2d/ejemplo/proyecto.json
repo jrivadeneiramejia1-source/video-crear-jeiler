@@ -1,0 +1,22 @@
+{
+  "ancho": 1280, "alto": 720, "marca": "Ejemplo inventado",
+  "escenas": [
+    {"tipo": "texto", "inicio": 0, "fin": 3, "texto": "La semilla de Mía", "detalle": "Un cuento corto de ejemplo"},
+    {"tipo": "personajes", "inicio": 3, "fin": 10, "rotulo": "Un día en el jardín",
+     "personajes": [
+       {"x": 0.30, "y": 0.62, "s": 1.0, "mood": "smile", "piel": "#E8B98F", "pelo": "#3B2A20", "pelo_estilo": "largo", "camisa": "#2A9D8F"},
+       {"x": 0.70, "y": 0.62, "s": 1.0, "mood": "surprise", "piel": "#C98B5A", "pelo": "#1F1612", "pelo_estilo": "rizos", "camisa": "#EF7B5C"}],
+     "dialogo": [{"quien": 0, "texto": "Mira, encontré una semilla.", "a": 0.8, "b": 3.4}, {"quien": 1, "texto": "¿Y si la sembramos?", "a": 3.8, "b": 6.4}]},
+    {"tipo": "personajes", "inicio": 10, "fin": 16, "rotulo": "Pasó el tiempo",
+     "personajes": [
+       {"x": 0.30, "y": 0.62, "s": 1.0, "mood": "laugh", "piel": "#E8B98F", "pelo": "#3B2A20", "pelo_estilo": "largo", "camisa": "#2A9D8F"},
+       {"x": 0.70, "y": 0.62, "s": 1.0, "mood": "laugh", "piel": "#C98B5A", "pelo": "#1F1612", "pelo_estilo": "rizos", "camisa": "#EF7B5C"}],
+     "dialogo": [{"quien": 1, "texto": "¡Mira, ya brotó!", "a": 0.8, "b": 3.2}]},
+    {"tipo": "texto", "inicio": 16, "fin": 20, "texto": "Fin", "detalle": "Hecho con el motor de animacion-2d"}
+  ],
+  "cues": [
+    {"a": 3.8, "b": 6.4, "lines": ["Mira, encontré una semilla."]},
+    {"a": 6.8, "b": 9.4, "lines": ["¿Y si la sembramos?"]},
+    {"a": 10.8, "b": 13.2, "lines": ["¡Mira, ya brotó!"]}
+  ]
+}

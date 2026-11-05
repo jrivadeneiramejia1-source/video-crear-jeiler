@@ -1,0 +1,105 @@
+{
+  "titulo": "¿Qué es una PWA?",
+  "voz": "ef_dora",
+  "velocidad": 1.0,
+  "marca": "Ejemplo de video explicativo",
+  "musica": {
+    "animo": "calmo",
+    "tono": "C",
+    "volumen_lufs": -28
+  },
+  "escenas": [
+    {
+      "tipo": "titulo",
+      "texto": "¿Qué es una PWA?",
+      "detalle": "Una página web que se instala como app",
+      "icono": "telefono",
+      "narracion": [
+        "¿Sabías que una página web puede instalarse como una aplicación?",
+        "Se llama PWA, o aplicación web progresiva."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "titulo": "Lo que hace una PWA",
+      "items": [
+        "Se instala desde el navegador",
+        "Abre aunque no haya internet",
+        "Se actualiza sola"
+      ],
+      "narracion": [
+        "Se instala desde el navegador, sin pasar por una tienda.",
+        "Puede abrir aunque no haya internet.",
+        "Y se actualiza sola cuando la abres con conexión."
+      ]
+    },
+    {
+      "tipo": "comparar",
+      "titulo": "Página normal contra PWA",
+      "izquierda": {
+        "titulo": "Página web normal",
+        "icono": "nube",
+        "malo": true,
+        "puntos": [
+          "Necesita internet cada vez",
+          "No tiene ícono propio"
+        ]
+      },
+      "derecha": {
+        "titulo": "PWA instalada",
+        "icono": "telefono",
+        "puntos": [
+          "Guarda sus archivos en tu aparato",
+          "Abre desde un ícono"
+        ]
+      },
+      "narracion": [
+        "Una página web normal necesita internet cada vez que la abres.",
+        "Una PWA guarda sus archivos en tu aparato y abre desde un ícono."
+      ]
+    },
+    {
+      "tipo": "pasos",
+      "titulo": "Instalarla es fácil",
+      "pasos": [
+        "Abre la página en tu navegador",
+        "Busca Instalar o Agregar a pantalla de inicio",
+        "Ábrela desde su ícono"
+      ],
+      "narracion": [
+        "Instalarla es fácil.",
+        "Primero, abre la página en tu navegador.",
+        "Segundo, busca la opción Instalar o Agregar a la pantalla de inicio.",
+        "Tercero, ábrela desde su ícono, como cualquier otra app."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "titulo": "Lo que conviene saber",
+      "items": [
+        "La página debe usar una conexión segura (HTTPS)",
+        "Sus datos se guardan en tu aparato",
+        "Guarda una copia de lo importante"
+      ],
+      "narracion": [
+        "Para instalarse, la página debe usar una conexión segura, es decir, HTTPS.",
+        "Los datos que guarda se quedan en tu aparato.",
+        "Por eso conviene guardar una copia de lo importante."
+      ]
+    },
+    {
+      "tipo": "cierre",
+      "texto": "Una sola página para el teléfono y el computador",
+      "icono": "casa",
+      "creditos": [
+        "Narración con voz sintética (Kokoro)",
+        "Música original generada por código",
+        "Video de ejemplo inventado"
+      ],
+      "narracion": [
+        "Así, una sola página sirve en el teléfono y en el computador.",
+        "Gracias por ver este video."
+      ]
+    }
+  ]
+}

@@ -5,15 +5,19 @@ Es la pareja de `video-editar-jeiler` (cortar, limpiar el audio, subtitular, com
 
 Cada carpeta de `skills/` es una skill: un archivo `SKILL.md` con instrucciones para que Claude sepa cuándo y cómo usarla.
 
-## Estado: base lista, skills en camino
-Por ahora el repo tiene solo la base (instalador, hook de inicio, licencia, reglas de privacidad). Las skills llegan por fases; el orden está en `INDICE-DE-SKILLS.md`.
+## Estado: fases 4, 5 y 6 hechas (crear)
+Hay 12 skills: `plan-de-video`, `animacion-2d`, `video-explicativo`, `voz-sintetica`, `musica-y-efectos`, `video-3d`, `personajes-consistentes`, `video-infantil`, `clips-ia` (**sin probar**), `estudiar-video-referencia`, `historia-3d` (piezas probadas; **video completo en pausa**) y `recursos-3d`. El orden y los grupos están en `INDICE-DE-SKILLS.md`. Lo probado y lo no probado: `PRUEBAS.md`.
 
 ## Cómo usarlas (cuando haya skills)
 Una skill solo funciona si está en la carpeta de skills de Claude (`~/.claude/skills/`). El instalador copia por grupos:
 
 ```bash
 ./instalar.sh --lista        # ver los grupos
-./instalar.sh plan voz       # instalar esos grupos
+./instalar.sh explicativo    # plan, animación 2D, voz, música y explicativos
+./instalar.sh 3d             # personajes 3D (Blender) con personajes consistentes
+./instalar.sh infantil       # explicativo + reglas y revisión para videos de niños
+./instalar.sh referencia     # sacar la receta de estilo de un video que te gustó
+./instalar.sh historia3d     # historias en 3D: personajes, escenario, tomas y recursos
 ```
 **En sesiones en la nube** se instalan solos los grupos de `grupos-activos.txt`, con un hook de inicio en `.claude/`; solo funciona si este repo está cargado como repo de la sesión. El instalador no pisa una skill que ya exista con el mismo nombre y que no haya instalado él. Mejor pocos grupos a la vez: cada skill agrega su descripción al contexto y eso gasta tokens.
 
