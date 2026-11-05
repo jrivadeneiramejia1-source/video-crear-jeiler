@@ -1,0 +1,507 @@
+{
+ "titulo": "Lila y el arcoíris",
+ "reparto": {
+  "lila": {
+   "paquete": "animated-characters-2",
+   "piel": "pieles/lila.png",
+   "altura": 1.25,
+   "accesorios": [
+    {
+     "tipo": "coletas",
+     "color": "#2A1515",
+     "atado": "#F26B8A"
+    }
+   ]
+  },
+  "tito": {
+   "paquete": "animated-characters-2",
+   "piel": "pieles/tito.png",
+   "altura": 1.2
+  }
+ },
+ "escenario": {
+  "cuarto": {
+   "ancho": 6,
+   "largo": 4,
+   "ventana_x": 0,
+   "pared": "#F3DDB8"
+  },
+  "piezas": [
+   {
+    "pieza": "rugRound",
+    "x": 0,
+    "y": 0.3,
+    "esc": 1.0
+   },
+   {
+    "pieza": "bedSingle",
+    "x": -2.3,
+    "y": -0.3,
+    "giro": 0
+   },
+   {
+    "pieza": "bear",
+    "x": -2.3,
+    "y": 0.5,
+    "z": 0.72,
+    "giro": 20,
+    "esc": 0.6,
+    "id": "oso"
+   },
+   {
+    "pieza": "bookcaseClosed",
+    "x": 2.6,
+    "y": 1.2,
+    "giro": 90
+   },
+   {
+    "pieza": "pottedPlant",
+    "x": 1.7,
+    "y": 1.7
+   },
+   {
+    "pieza": "sideTable",
+    "x": -2.0,
+    "y": 1.7
+   },
+   {
+    "pieza": "lampRoundTable",
+    "x": -2.0,
+    "y": 1.7,
+    "z": 0.75
+   }
+  ],
+  "exterior": {
+   "pasto": "#7FB069",
+   "arcoiris_x": -0.2,
+   "arcoiris_y": 7.5,
+   "arboles": [
+    {
+     "x": -4,
+     "y": 9,
+     "esc": 5
+    },
+    {
+     "x": 5,
+     "y": 12,
+     "esc": 6
+    },
+    {
+     "x": -9,
+     "y": 15,
+     "esc": 7
+    }
+   ],
+   "flores": [
+    {
+     "x": -1.2,
+     "y": 3.2
+    },
+    {
+     "x": 1.4,
+     "y": 3.6
+    },
+    {
+     "x": 0.3,
+     "y": 4.5
+    }
+   ]
+  }
+ },
+ "tomas": [
+  {
+   "id": 1,
+   "dur": 4.5,
+   "cielo": "lluvia",
+   "muestra": [
+    "ventana",
+    "lluvia",
+    "lila"
+   ],
+   "camara": {
+    "pos": [
+     0,
+     -1.9,
+     1.5
+    ],
+    "mira": [
+     0,
+     1.2,
+     1.15
+    ],
+    "lente": 26
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.5,
+      1.0
+     ],
+     "mira_a": [
+      -0.5,
+      2.0
+     ]
+    }
+   }
+  },
+  {
+   "id": 2,
+   "dur": 5.0,
+   "cielo": "lluvia",
+   "muestra": [
+    "lila",
+    "ventana",
+    "lluvia"
+   ],
+   "camara": {
+    "pos": [
+     -1.8,
+     -1.0,
+     1.35
+    ],
+    "mira": [
+     -0.2,
+     1.7,
+     1.0
+    ],
+    "lente": 30,
+    "hasta": {
+     "pos": [
+      -1.3,
+      -0.8,
+      1.35
+     ],
+     "mira": [
+      -0.2,
+      1.7,
+      1.0
+     ],
+     "lente": 30
+    }
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.3,
+      1.3
+     ],
+     "mira_a": [
+      -0.3,
+      2.0
+     ],
+     "cabeza_a": [
+      0.2,
+      3.0,
+      1.5
+     ]
+    }
+   }
+  },
+  {
+   "id": 3,
+   "dur": 5.5,
+   "cielo": "lluvia",
+   "muestra": [
+    "lila",
+    "tito"
+   ],
+   "camara": {
+    "pos": [
+     0.1,
+     -2.4,
+     1.35
+    ],
+    "mira": [
+     0.1,
+     0.9,
+     0.95
+    ],
+    "lente": 30
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.65,
+      0.9
+     ],
+     "mira_a": [
+      0.7,
+      0.9
+     ]
+    },
+    "tito": {
+     "pos": [
+      0.7,
+      0.9
+     ],
+     "mira_a": [
+      -0.65,
+      0.9
+     ],
+     "gestos": [
+      {
+       "g": "preocupado",
+       "t": 0.2,
+       "dur": 5
+      },
+      {
+       "g": "niega",
+       "t": 1.0,
+       "dur": 2.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": 4,
+   "dur": 5.0,
+   "cielo": "lluvia",
+   "muestra": [
+    "lila",
+    "tito"
+   ],
+   "camara": {
+    "pos": [
+     -0.2,
+     -2.3,
+     1.3
+    ],
+    "mira": [
+     -0.1,
+     0.9,
+     0.95
+    ],
+    "lente": 32
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.6,
+      0.9
+     ],
+     "mira_a": [
+      0.7,
+      0.9
+     ],
+     "gestos": [
+      {
+       "g": "asiente",
+       "t": 1.0,
+       "dur": 2.0
+      }
+     ]
+    },
+    "tito": {
+     "pos": [
+      0.7,
+      0.9
+     ],
+     "mira_a": [
+      -0.6,
+      0.9
+     ],
+     "gestos": [
+      {
+       "g": "preocupado",
+       "t": 0.0,
+       "dur": 5
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": 5,
+   "dur": 6.0,
+   "cielo": {
+    "de": "lluvia",
+    "a": "arcoiris",
+    "en": 1.6,
+    "dura": 2.0
+   },
+   "muestra": [
+    "ventana",
+    "arcoiris",
+    "lila",
+    "tito"
+   ],
+   "camara": {
+    "pos": [
+     0.1,
+     -1.5,
+     1.2
+    ],
+    "mira": [
+     0.1,
+     2.0,
+     1.4
+    ],
+    "lente": 30,
+    "hasta": {
+     "pos": [
+      0.1,
+      -0.9,
+      1.2
+     ],
+     "mira": [
+      0.05,
+      2.0,
+      1.45
+     ],
+     "lente": 30
+    }
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.6,
+      1.3
+     ],
+     "mira_a": [
+      -0.6,
+      2.0
+     ],
+     "cabeza_a": [
+      0,
+      6,
+      2.2
+     ],
+     "gestos": [
+      {
+       "g": "senala",
+       "t": 2.6,
+       "dur": 3.0
+      }
+     ]
+    },
+    "tito": {
+     "pos": [
+      0.6,
+      1.3
+     ],
+     "mira_a": [
+      0.6,
+      2.0
+     ],
+     "cabeza_a": [
+      0,
+      6,
+      2.2
+     ]
+    }
+   }
+  },
+  {
+   "id": 6,
+   "dur": 5.0,
+   "cielo": "arcoiris",
+   "muestra": [
+    "lila",
+    "tito",
+    "arcoiris"
+   ],
+   "camara": {
+    "pos": [
+     0,
+     -2.4,
+     1.0
+    ],
+    "mira": [
+     0,
+     1.2,
+     1.3
+    ],
+    "lente": 28
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.6,
+      1.0
+     ],
+     "mira_a": [
+      -0.6,
+      2.0
+     ],
+     "anim": "saltar"
+    },
+    "tito": {
+     "pos": [
+      0.6,
+      1.0
+     ],
+     "mira_a": [
+      0.6,
+      2.0
+     ],
+     "anim": "saltar"
+    }
+   }
+  },
+  {
+   "id": 7,
+   "dur": 4.5,
+   "cielo": "arcoiris",
+   "muestra": [
+    "lila",
+    "tito"
+   ],
+   "camara": {
+    "pos": [
+     0,
+     -2.6,
+     1.4
+    ],
+    "mira": [
+     0,
+     1.0,
+     1.0
+    ],
+    "lente": 30,
+    "hasta": {
+     "pos": [
+      0,
+      -1.9,
+      1.35
+     ],
+     "mira": [
+      0,
+      1.0,
+      1.0
+     ],
+     "lente": 30
+    }
+   },
+   "personajes": {
+    "lila": {
+     "pos": [
+      -0.55,
+      0.9
+     ],
+     "mira_a": [
+      0,
+      -3
+     ],
+     "gestos": [
+      {
+       "g": "saluda",
+       "t": 0.5,
+       "dur": 3.5
+      }
+     ]
+    },
+    "tito": {
+     "pos": [
+      0.55,
+      0.9
+     ],
+     "mira_a": [
+      0,
+      -3
+     ]
+    }
+   }
+  }
+ ]
+}
