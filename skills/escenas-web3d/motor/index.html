@@ -1,7 +1,9 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="icon" href="data:,"><style>
 html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+#fade{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:9}
+#tit{position:fixed;left:0;right:0;text-align:center;font:800 clamp(28px,6vw,84px)/1.1 Inter,"DejaVu Sans",sans-serif;color:#fff;padding:0 6%;text-shadow:0 3px 10px #000a;pointer-events:none}
 #sub{position:fixed;left:0;right:0;bottom:6%;text-align:center;font:700 clamp(18px,3.4vw,44px)/1.25 Inter,"DejaVu Sans",sans-serif;color:#fff;padding:0 6%;text-shadow:0 2px 6px #000,0 0 14px #000}
-</style></head><body><div id="sub"></div>
+</style></head><body><div id="tit"></div><div id="sub"></div><div id="fade"></div>
 <script src="/gsap/gsap.min.js"></script>
 <script type="module">
 import * as THREE from '/three/build/three.module.js';
@@ -17,6 +19,12 @@ const sol = new THREE.DirectionalLight(0xffffff, (L.sol&&L.sol.fuerza)??2.2); so
 sol.castShadow=true; sol.shadow.mapSize.set(1024,1024); Object.assign(sol.shadow.camera,{left:-12,right:12,top:12,bottom:-12}); sc.add(sol);
 if (P.suelo){ const s=new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.MeshStandardMaterial({color:P.suelo.color||'#1c2733',roughness:.9})); s.rotation.x=-Math.PI/2; s.receiveShadow=true; sc.add(s); }
 const G = {caja:()=>new THREE.BoxGeometry(1,1,1), esfera:()=>new THREE.SphereGeometry(.5,32,20), cilindro:()=>new THREE.CylinderGeometry(.5,.5,1,32), cono:()=>new THREE.ConeGeometry(.5,1,32), toro:()=>new THREE.TorusGeometry(.4,.15,16,48), plano:()=>new THREE.PlaneGeometry(1,1)};
+// Curvas de movimiento: nombres cortos o [x1,y1,x2,y2] (cubic-bezier, como en CSS y los editores de video) o cualquier nombre de GSAP.
+const PRE = {suave:[.25,.1,.25,1], frena:[0,0,.2,1], arranca:[.8,0,1,1], 'arranca-frena':[.4,0,.2,1], pop:[.175,.885,.32,1.275], lineal:[0,0,1,1]};
+const bez = (x1,y1,x2,y2) => t => { if (t<=0) return 0; if (t>=1) return 1; let lo=0, hi=1, u=t;
+  for (let i=0;i<40;i++){ u=(lo+hi)/2; const x=3*(1-u)*(1-u)*u*x1+3*(1-u)*u*u*x2+u*u*u; if (x<t) lo=u; else hi=u; }
+  return 3*(1-u)*(1-u)*u*y1+3*(1-u)*u*u*y2+u*u*u; };
+const E = e => Array.isArray(e) ? bez(...e) : (typeof e==='string' && PRE[e]) ? bez(...PRE[e]) : (e||'power1.inOut');
 const obj = {}, tl = gsap.timeline({paused:true}), fin = {};
 for (const o of (P.objetos||[])){
   const g = (G[o.forma]||G.caja)(), m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({color:o.color||'#cccccc',roughness:o.rugoso??.55,metalness:o.metal??0}));
@@ -24,15 +32,24 @@ for (const o of (P.objetos||[])){
   const id=o.id||('o'+(Object.keys(obj).length-1)); const cur={pos:[...m.position.toArray()],rot:[m.rotation.x,m.rotation.y,m.rotation.z],esc:[...m.scale.toArray()]};
   for (const a of (o.anim||[]).slice().sort((x,y)=>x.a-y.a)){
     const tgt={pos:m.position,rot:m.rotation,esc:m.scale}[a.prop], k=a.prop==='rot'?['x','y','z']:['x','y','z'], d=cur[a.prop], h=a.hasta;
-    tl.fromTo(tgt,{x:d[0],y:d[1],z:d[2]},{x:h[0],y:h[1],z:h[2],duration:a.b-a.a,ease:a.ease||'power1.inOut',immediateRender:false},a.a); cur[a.prop]=[...h];
+    tl.fromTo(tgt,{x:d[0],y:d[1],z:d[2]},{x:h[0],y:h[1],z:h[2],duration:a.b-a.a,ease:E(a.ease),immediateRender:false},a.a); cur[a.prop]=[...h];
   }
 }
 const px={x:0,y:0,z:0,lx:0,ly:0,lz:0}, c0=N.pos||[0,2,8], l0=N.mira||[0,1,0]; Object.assign(px,{x:c0[0],y:c0[1],z:c0[2],lx:l0[0],ly:l0[1],lz:l0[2]});
 let cp=[...c0], cl=[...l0];
-for (const v of (N.mov||[]).slice().sort((x,y)=>x.a-y.a)){ const p=v.pos||cp, l=v.mira||cl;
-  tl.fromTo(px,{x:cp[0],y:cp[1],z:cp[2],lx:cl[0],ly:cl[1],lz:cl[2]},{x:p[0],y:p[1],z:p[2],lx:l[0],ly:l[1],lz:l[2],duration:v.b-v.a,ease:v.ease||'power1.inOut',immediateRender:false},v.a); cp=[...p]; cl=[...l]; }
+for (const v of (N.mov||[]).map(v=>v.corte!==undefined?{...v,a:v.corte,b:v.corte}:v).sort((x,y)=>x.a-y.a)){ const p=v.pos||cp, l=v.mira||cl;
+  tl.fromTo(px,{x:cp[0],y:cp[1],z:cp[2],lx:cl[0],ly:cl[1],lz:cl[2]},{x:p[0],y:p[1],z:p[2],lx:l[0],ly:l[1],lz:l[2],duration:v.b-v.a,ease:E(v.ease),immediateRender:false},v.a); cp=[...p]; cl=[...l]; }
 window.TOTAL = P.duracion; const sub=document.getElementById('sub');
+const fade=document.getElementById('fade'), tit=document.getElementById('tit'), F=P.fundido||null, pop=bez(...PRE.pop), suave=bez(...PRE.suave);
+function titulo(t){ const c=(P.titulos||[]).find(c=>t>=c.a&&t<c.b); if(!c){ tit.textContent=''; tit.style.opacity=0; return; }
+  const ent=Math.min(.45,(c.b-c.a)/3), sal=Math.min(.3,(c.b-c.a)/4), pi=Math.min((t-c.a)/ent,1), po=Math.min((c.b-t)/sal,1), k=c.entrada||'sube';
+  tit.textContent=c.texto||''; tit.style.color=c.color||'#fff'; tit.style.fontSize=c.tam?c.tam+'px':''; const lug=c.lugar||'centro';
+  tit.style.top=lug==='arriba'?'10%':lug==='abajo'?'62%':'42%';
+  tit.style.opacity=suave(pi)*suave(Math.max(po,0)); const y=k==='sube'?(1-suave(pi))*40:0, sc=k==='pop'?.6+.4*pop(pi):1;
+  tit.style.transform=`translateY(${y}px) scale(${sc})`; }
 window.render = t => { tl.time(Math.min(Math.max(t,0),P.duracion),false); cam.position.set(px.x,px.y,px.z); cam.lookAt(px.lx,px.ly,px.lz);
-  const c=(P.cues||[]).find(c=>t>=c.a&&t<c.b); sub.textContent=c?(c.texto||''):''; rd.render(sc,cam); };
+  const c=(P.cues||[]).find(c=>t>=c.a&&t<c.b); sub.textContent=c?(c.texto||''):''; rd.render(sc,cam); titulo(t);
+  let o=0; if (F){ const ent=F.entrada||0, sal=F.salida||0; if (ent>0 && t<ent) o=1-t/ent; if (sal>0 && t>P.duracion-sal) o=Math.max(o,(t-(P.duracion-sal))/sal); }
+  fade.style.background=(F&&F.color)||'#000'; fade.style.opacity=Math.min(Math.max(o,0),1); };
 window.render(0); window.READY = true;
 </script></body></html>
