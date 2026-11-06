@@ -1,0 +1,16 @@
+{
+  "duracion": 6, "fondo": "#7fb3d5", "niebla": [18, 45],
+  "suelo": {"color": "#8fbf6a"},
+  "camara": {"pos": [0, 1.6, 7], "mira": [0, 1.1, 0], "fov": 45,
+    "mov": [{"a": 0, "b": 6, "pos": [3.5, 1.8, 6], "mira": [0, 1.1, 0], "ease": "suave"}]},
+  "luces": {"ambiente": 0.5, "entorno": "estudio", "entorno_fuerza": 0.7, "sol": {"pos": [4, 8, 5], "fuerza": 2.2}},
+  "objetos": [
+    {"id": "caballero", "modelo": "kaykit/Knight.glb", "clip": "Walking_A", "pos": [-3, 0, 0], "rot": [0, 1.5708, 0],
+     "anim": [{"a": 0, "b": 6, "prop": "pos", "hasta": [1.2, 0, 0], "ease": "lineal"}]},
+    {"id": "maga", "modelo": "kaykit/Mage.glb", "clip": "Cheer", "pos": [2.6, 0, -0.6], "rot": [0, -0.6, 0]},
+    {"id": "cartel", "forma": "caja", "color": "#f4d35e", "pos": [0, 0.15, -2], "tam": [2.4, 0.3, 0.3]}
+  ],
+  "fundido": {"entrada": 0.4, "salida": 0.6},
+  "titulos": [{"a": 0.5, "b": 4.5, "texto": "Personajes inventados de ejemplo", "lugar": "arriba", "entrada": "pop"}],
+  "cues": [{"a": 0.5, "b": 5.5, "texto": "Modelos con esqueleto y animación"}]
+}

@@ -6,8 +6,9 @@
   python render_web3d.py PROYECTO.json hoja SALIDA.png [--n 8]    hoja de cuadros repartidos
   python render_web3d.py PROYECTO.json video SALIDA.mp4 [--fps 30]  video SIN sonido
 Opciones: --ancho N --alto N (horizontal 1280x720 o vertical 720x1280)   --libs CARPETA (por defecto ~/.cache/video-jeiler/web)
+          --recursos CARPETA (modelos .glb e imágenes; por defecto ~/.cache/video-jeiler/recursos3d; también se buscan junto al PROYECTO.json)
 Usar el Python de la instalación (bash instalar_web3d.sh): ~/.cache/video-jeiler/venv/bin/python. No sobrescribe videos existentes."""
-import asyncio, functools, http.server, json, os, pathlib, shutil, subprocess, sys, threading
+import asyncio, functools, http.server, json, os, pathlib, shutil, subprocess, sys, threading, urllib.parse
 from playwright.async_api import async_playwright
 
 AQUI = pathlib.Path(__file__).resolve().parent
@@ -18,20 +19,28 @@ def chromium():
         if c and os.access(c, os.X_OK) and not os.path.isdir(c): return c
 
 def opciones(a):
-    o = {"ancho": None, "alto": None, "fps": 30, "n": 8, "carpeta": "stills", "libs": os.environ.get("VIDEO_JEILER_MODELOS", str(pathlib.Path.home() / ".cache/video-jeiler")) + "/web"}; r = []; i = 0
+    o = {"ancho": None, "alto": None, "fps": 30, "n": 8, "carpeta": "stills", "libs": os.environ.get("VIDEO_JEILER_MODELOS", str(pathlib.Path.home() / ".cache/video-jeiler")) + "/web", "recursos": os.environ.get("VIDEO_JEILER_MODELOS", str(pathlib.Path.home() / ".cache/video-jeiler")) + "/recursos3d"}; r = []; i = 0
     while i < len(a):
         if a[i] in ("--ancho", "--alto", "--fps", "--n"): o[a[i][2:]] = int(a[i + 1]); i += 2
-        elif a[i] in ("--carpeta", "--libs"): o[a[i][2:]] = a[i + 1]; i += 2
+        elif a[i] in ("--carpeta", "--libs", "--recursos"): o[a[i][2:]] = a[i + 1]; i += 2
         else: r.append(a[i]); i += 1
     return r, o
 
-def servir(libs):
-    """Sirve el motor y las librerías por http local (los módulos de Three.js no cargan desde file://)."""
+def servir(libs, carpetas):
+    """Sirve el motor, las librerías y los modelos/imágenes por http local (los módulos de Three.js no cargan desde file://).
+    /m/RUTA se busca en las carpetas dadas (la del proyecto y la de recursos); nunca fuera de ellas."""
     motor, base = str(AQUI.parent / "motor"), pathlib.Path(libs)
+    carpetas = [pathlib.Path(c).resolve() for c in carpetas]
     class H(http.server.SimpleHTTPRequestHandler):
         def translate_path(self, p):
             p = p.split("?")[0]
             if p.startswith(("/three/", "/gsap/")): return str(base / p.lstrip("/"))
+            if p.startswith("/m/"):
+                r = urllib.parse.unquote(p[3:])
+                for c in carpetas:
+                    f = (c / r).resolve()
+                    if f.is_file() and f.is_relative_to(c): return str(f)
+                return str(base / "no-existe")
             return str(pathlib.Path(motor) / (p.lstrip("/") or "index.html"))
         def log_message(self, *a): pass
     s = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H); threading.Thread(target=s.serve_forever, daemon=True).start(); return s
@@ -42,12 +51,14 @@ async def abrir(p, proyecto, o):
     if o["alto"]: pr["alto"] = o["alto"]
     pr.setdefault("ancho", 1280); pr.setdefault("alto", 720)
     if not (pathlib.Path(o["libs"]) / "three/build/three.module.js").exists(): sys.exit("Faltan Three.js y GSAP: ejecutar bash instalar_web3d.sh")
-    srv = servir(o["libs"]); ruta = chromium()
+    srv = servir(o["libs"], [pathlib.Path(proyecto).resolve().parent, o["recursos"]]); ruta = chromium()
     b = await p.chromium.launch(args=ARGS_GL, **({"executable_path": ruta} if ruta else {}))
     pg = await b.new_page(viewport={"width": pr["ancho"], "height": pr["alto"]}); errs = []
     pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("console", lambda m: errs.append("console: " + m.text) if m.type == "error" else None)
     await pg.add_init_script("window.PROYECTO=" + json.dumps(pr))
-    await pg.goto(f"http://127.0.0.1:{srv.server_port}/index.html"); await pg.wait_for_function("window.READY===true", timeout=60000)
+    await pg.goto(f"http://127.0.0.1:{srv.server_port}/index.html"); await pg.wait_for_function("window.READY===true || window.FALLO", timeout=120000)
+    fallo = await pg.evaluate("window.FALLO || null")
+    if fallo: await b.close(); srv.shutdown(); sys.exit("Error en la escena: " + fallo)
     return b, pg, errs, pr, srv
 
 async def cuadro(pg, t):
@@ -63,6 +74,7 @@ async def main():
         if modo == "verificar":
             for t in (0, total / 2, total - 0.05): await pg.evaluate(f"render({t})")
             print(f"duración {total:.2f} s, {len(pr.get('objetos', []))} objetos | errores de la página: {errs or 'ninguno'}"); ok = not errs
+            for mo in await pg.evaluate("window.INFO.modelos"): print(f"  modelo {mo['id']} ({mo['modelo']}): clips = {', '.join(mo['clips']) or 'ninguno'}")
         elif modo == "stills":
             c = pathlib.Path(o["carpeta"]); c.mkdir(exist_ok=True)
             for t in r[2:]: (c / f"t{float(t):06.2f}.png").write_bytes(await cuadro(pg, float(t))); print("guardado", c / f"t{float(t):06.2f}.png")

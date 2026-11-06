@@ -18,6 +18,7 @@ description: >-
 | Kenney: Animated Characters 1 y 2, Blocky Characters | personajes con esqueleto; 3 animaciones (los de la serie 1 y 2) o 27 (blocky) | `scripts/descargar_personajes.sh` | Probados 1 y 2; blocky solo descargado |
 | Kenney: Furniture Kit | 120 muebles y paredes (con **ventana** `wallWindow`), en OBJ | `scripts/descargar_recursos.sh` | Probado |
 | Kenney: Nature Kit | 329 piezas (árboles, flores, rocas...), en OBJ | `scripts/descargar_recursos.sh` | Probado (árboles y flores en la escena) |
+| KayKit: Adventurers 1.0 (Knight, Mage, Barbarian, Rogue, Rogue_Hooded) | 5 personajes low-poly en `.glb` con esqueleto, textura y **76 animaciones** cada uno (caminar, correr, saltar, atacar, celebrar...) | `escenas-web3d/scripts/descargar_personajes_kaykit.sh` (git clone; comprueba CC0) | Probado en `escenas-web3d` (Knight y Mage, 2026-11-06) |
 | Quaternius: Universal Animation Library 1 y 2 (versión «Standard») | 46 + 43 animaciones: caminar, hablar, sentarse, bailar, asentir (`Yes`), correr, saltar... | `scripts/descargar_recursos.sh`; en la escena: `"anim": "ual1:Walk_Loop"` | Probadas con personajes de Kenney (copiando la dirección de los huesos) |
 | Poly Haven: cielos (HDRI) | cielos reales para fondo y luz | `python3 scripts/descargar_cielo.py --listar nublado` / `ID` | Probados (nublado y parcialmente nublado) |
 
@@ -28,7 +29,6 @@ description: >-
 | Poly Haven: modelos (521) | CC0 | Se pueden bajar por la API, pero son fotorrealistas y desentonan con el estilo de Kenney; sirven para escenas realistas. |
 | MPFB2 (generador de humanos para Blender) | código GPLv3, recursos CC0 | Necesita Blender con extensión y 267 MB de recursos extra; sin probar. Candidato para humanos más realistas. |
 | Rhubarb Lip Sync | MIT | Es un programa en C++: bajar el binario va contra la regla de Jeiler y compilarlo exige CMake y otras bibliotecas (sin probar); además las caras de Kenney son dibujos fijos, sin boca animable. |
-| KayKit (personajes y animaciones) | CC0 | Repos públicos en GitHub (alcanzables con `git clone`); sin probar su esqueleto. Candidato para ampliar el reparto. |
 | Servidores MCP de Blender | varias | Ejecutan código arbitrario dentro de Blender; el repo ya controla Blender con scripts propios y revisables. |
 | Kenney.nl, Poly Pizza, itch.io | — | Bloqueados o limitados desde la nube (403/429); se usa OpenGameArt como espejo de Kenney. |
 

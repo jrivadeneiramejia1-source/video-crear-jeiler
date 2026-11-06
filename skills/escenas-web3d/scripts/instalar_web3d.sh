@@ -9,13 +9,13 @@ for c in ffmpeg npm python3; do command -v "$c" >/dev/null || { echo "Falta $c."
 mkdir -p "$WEB"
 if [ ! -x "$BASE/venv/bin/python" ]; then python3 -m venv "$BASE/venv"; fi
 "$BASE/venv/bin/pip" install --quiet playwright 2>&1 | grep -v "notice" || true
-if [ ! -f "$WEB/three/build/three.module.js" ]; then
+if [ ! -f "$WEB/three/build/three.module.js" ] || [ ! -f "$WEB/three/examples/jsm/loaders/GLTFLoader.js" ]; then
   T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
   (cd "$T" && npm pack three@0.187.0 gsap@3.15.1 --silent >/dev/null)
   for f in "$T"/*.tgz; do tar -xzf "$f" -C "$T" --one-top-level="$(basename "$f" .tgz)"; done
   rm -rf "$WEB/three" "$WEB/gsap"
   mkdir -p "$WEB/three" "$WEB/gsap"
-  cp -r "$T"/three-*/package/build "$WEB/three/build"; cp "$T"/three-*/package/LICENSE "$WEB/three/LICENSE"
+  cp -r "$T"/three-*/package/build "$WEB/three/build"; mkdir -p "$WEB/three/examples"; cp -r "$T"/three-*/package/examples/jsm "$WEB/three/examples/jsm"; cp "$T"/three-*/package/LICENSE "$WEB/three/LICENSE"
   cp "$T"/gsap-*/package/dist/gsap.min.js "$WEB/gsap/"; cp "$T"/gsap-*/package/LICENSE.md "$WEB/gsap/" 2>/dev/null || true
 fi
 head -c 300 "$WEB/three/LICENSE" | head -3

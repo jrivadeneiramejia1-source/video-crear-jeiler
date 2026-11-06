@@ -1,18 +1,213 @@
 {
-  "duracion": 6, "fondo": "#0f1722", "niebla": [14, 40],
-  "suelo": {"color": "#1d2b3a"},
-  "camara": {"pos": [0, 2.2, 9], "mira": [0, 1, 0], "fov": 50,
-    "mov": [{"a": 0, "b": 6, "pos": [6, 3.2, 6.5], "mira": [0, 1, 0]}]},
-  "luces": {"ambiente": 0.7, "sol": {"pos": [5, 8, 4], "fuerza": 2.4}},
-  "objetos": [
-    {"id": "cubo", "forma": "caja", "color": "#9be15d", "pos": [-2, 0.5, 0], "anim": [
-      {"a": 0, "b": 3, "prop": "rot", "hasta": [0, 3.1416, 0]},
-      {"a": 3, "b": 6, "prop": "pos", "hasta": [-2, 2, 0]}]},
-    {"id": "bola", "forma": "esfera", "color": "#ff7a59", "pos": [0, 0.5, 0], "metal": 0.2, "anim": [
-      {"a": 0, "b": 3, "prop": "pos", "hasta": [0, 2.5, 0], "ease": "power2.out"},
-      {"a": 3, "b": 6, "prop": "pos", "hasta": [0, 0.5, 0], "ease": "bounce.out"}]},
-    {"id": "cono", "forma": "cono", "color": "#59b8ff", "pos": [2, 0.5, 0], "anim": [
-      {"a": 0, "b": 6, "prop": "rot", "hasta": [0, 6.2832, 0], "ease": "none"}]}
+  "duracion": 8,
+  "fondo": "#0f1722",
+  "niebla": [
+    14,
+    40
   ],
-  "cues": [{"a": 0.3, "b": 3, "texto": "Figuras de ejemplo (inventadas)"}, {"a": 3, "b": 5.8, "texto": "Todo se mueve con GSAP"}]
+  "suelo": {
+    "color": "#1d2b3a"
+  },
+  "camara": {
+    "pos": [
+      0,
+      2.2,
+      9
+    ],
+    "mira": [
+      0,
+      1,
+      0
+    ],
+    "fov": 50,
+    "mov": [
+      {
+        "a": 0,
+        "b": 4,
+        "pos": [
+          6,
+          3.2,
+          6.5
+        ],
+        "mira": [
+          0,
+          1,
+          0
+        ],
+        "ease": "suave"
+      },
+      {
+        "corte": 4,
+        "pos": [
+          -5,
+          1.2,
+          4
+        ],
+        "mira": [
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "a": 4,
+        "b": 8,
+        "pos": [
+          -3,
+          2.5,
+          7
+        ],
+        "mira": [
+          0,
+          1,
+          0
+        ],
+        "ease": "arranca-frena"
+      }
+    ]
+  },
+  "luces": {
+    "ambiente": 0.7,
+    "sol": {
+      "pos": [
+        5,
+        8,
+        4
+      ],
+      "fuerza": 2.4
+    }
+  },
+  "objetos": [
+    {
+      "id": "cubo",
+      "forma": "caja",
+      "color": "#9be15d",
+      "pos": [
+        -2,
+        0.5,
+        0
+      ],
+      "anim": [
+        {
+          "a": 0,
+          "b": 3,
+          "prop": "rot",
+          "hasta": [
+            0,
+            3.1416,
+            0
+          ],
+          "ease": "pop"
+        },
+        {
+          "a": 3,
+          "b": 8,
+          "prop": "pos",
+          "hasta": [
+            -2,
+            2,
+            0
+          ],
+          "ease": [
+            0.4,
+            0,
+            0.2,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bola",
+      "forma": "esfera",
+      "color": "#ff7a59",
+      "pos": [
+        0,
+        0.5,
+        0
+      ],
+      "metal": 0.2,
+      "anim": [
+        {
+          "a": 0,
+          "b": 3,
+          "prop": "pos",
+          "hasta": [
+            0,
+            2.5,
+            0
+          ],
+          "ease": "frena"
+        },
+        {
+          "a": 3,
+          "b": 8,
+          "prop": "pos",
+          "hasta": [
+            0,
+            0.5,
+            0
+          ],
+          "ease": "bounce.out"
+        }
+      ]
+    },
+    {
+      "id": "cono",
+      "forma": "cono",
+      "color": "#59b8ff",
+      "pos": [
+        2,
+        0.5,
+        0
+      ],
+      "anim": [
+        {
+          "a": 0,
+          "b": 8,
+          "prop": "rot",
+          "hasta": [
+            0,
+            6.2832,
+            0
+          ],
+          "ease": "lineal"
+        }
+      ]
+    }
+  ],
+  "cues": [
+    {
+      "a": 0.6,
+      "b": 4,
+      "texto": "Figuras de ejemplo (inventadas)"
+    },
+    {
+      "a": 4.4,
+      "b": 7.2,
+      "texto": "Curvas, fundidos y títulos"
+    }
+  ],
+  "fundido": {
+    "entrada": 0.5,
+    "salida": 0.7,
+    "color": "#000000"
+  },
+  "titulos": [
+    {
+      "a": 0.6,
+      "b": 3.6,
+      "texto": "Título de ejemplo",
+      "lugar": "arriba",
+      "entrada": "pop"
+    },
+    {
+      "a": 4.4,
+      "b": 7.2,
+      "texto": "Corte de cámara a los 4 s",
+      "lugar": "centro",
+      "entrada": "sube",
+      "color": "#9be15d"
+    }
+  ]
 }
