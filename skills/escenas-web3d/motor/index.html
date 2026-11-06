@@ -136,10 +136,15 @@ function construirAcciones(){
       else if (fin !== null && s.a < fin - 0.05) window.INFO.avisos.push('«'+id+'»: la acción «'+s.clip+'» empieza en '+s.a+' s pero la anterior termina en '+fin.toFixed(2)+' s (se cortaría). Quita «a» o usa '+fin.toFixed(1)+'.');
       fin = s.dura !== undefined ? s.a + s.dura : (s.bucle === false ? s.a + g.clip.duration/(s.vel||1) : null);
       if (s.ir_a){ const tx=s.ir_a[0], tz=s.ir_a.length>2?s.ir_a[2]:s.ir_a[1], ty=s.ir_a.length>2?s.ir_a[1]:py, dx=tx-px, dz=tz-pz, dist=Math.hypot(dx,dz);
-        if (dist>0.01){ const y1=ang(yaw, Math.atan2(dx,dz)+frente[id]), t0=s.a+giro*0.6, nat=g.nat, dur = s.b!==undefined ? s.b-t0 : (nat ? dist/(nat*(s.vel||1)) : dist/1.2);
+        if (dist>0.01){ const y1=ang(yaw, Math.atan2(dx,dz)+frente[id]), t0=s.a+giro*0.6, nat=g.nat, vcr0 = nat ? nat*(s.vel||1) : 1.2;
+          let ta = s.arranque ?? 0.45, td = s.frenado ?? 0.55;   // una persona no sale ni se detiene de golpe: acelera y frena (puedes poner 0)
+          const dur = s.b!==undefined ? s.b-t0 : dist/vcr0 + (ta+td)/2; if (ta+td > dur*0.8){ const k = dur*0.8/(ta+td); ta*=k; td*=k; }
+          const vcr = dist/(dur-(ta+td)/2), vm = 1/(dur-(ta+td)/2);   // velocidad de crucero
+          const trapecio = q => { const t = q*dur; return t<ta ? vm*t*t/(2*ta) : t<=dur-td ? vm*(ta/2+(t-ta)) : 1 - vm*(dur-t)*(dur-t)/(2*td); };
           tl.fromTo(m.rotation,{y:yaw},{y:y1,duration:giro,ease:'power2.inOut',immediateRender:false},s.a); yaw=y1;
-          tl.fromTo(m.position,{x:px,y:py,z:pz},{x:tx,y:ty,z:tz,duration:dur,ease:E(s.ease||'lineal'),immediateRender:false},t0);
-          window.INFO.acciones.push({id, a:s.a, b:+(t0+dur).toFixed(2), clip:g.clip.name, distancia:+dist.toFixed(2), velocidad:+(dist/dur).toFixed(2), dur_translado:+dur.toFixed(2), b_dado: s.b!==undefined}); fin = t0 + dur; }
+          tl.fromTo(m.position,{x:px,y:py,z:pz},{x:tx,y:ty,z:tz,duration:dur,ease:s.ease ? E(s.ease) : (ta+td>0 ? trapecio : 'none'),immediateRender:false},t0);
+          g.p0 = [px, pz]; g.dist = dist;   // la cadencia de los pasos se calcula por la distancia recorrida: los pies no patinan ni al arrancar ni al frenar
+          window.INFO.acciones.push({id, a:s.a, b:+(t0+dur).toFixed(2), clip:g.clip.name, distancia:+dist.toFixed(2), velocidad:+vcr.toFixed(2), dur_translado:+dur.toFixed(2), b_dado: s.b!==undefined}); fin = t0 + dur; }
         px=tx; pz=tz; py=ty; }
       else if (s.mirar_grados!==undefined){ const y1=ang(yaw, s.mirar_grados*Math.PI/180+frente[id]); tl.fromTo(m.rotation,{y:yaw},{y:y1,duration:giro,ease:'power2.inOut',immediateRender:false},s.a); yaw=y1; } } }
   for (const ac of actores){ const id = ac.id, m = obj[id];
@@ -188,8 +193,8 @@ function titulo(t){ const c=(P.titulos||[]).find(c=>t>=c.a&&t<c.b); if(!c){ tit.
 // Mezcla de animaciones por tiempo: cada acción entra con un fundido corto y la anterior sale; así cualquier segundo del video se puede dibujar solo.
 function poner(ac_, t){ for (const {id, mx, segs, o} of ac_){ const mezcla = o.mezcla ?? 0.3;
   segs.forEach((g, i) => { const s = g.s, sig = segs[i+1], entra = i===0 ? 1 : Math.min(Math.max((t - s.a)/mezcla, 0), 1), sale = sig ? 1 - Math.min(Math.max((t - sig.s.a)/mezcla, 0), 1) : 1, w = entra * sale, ac = g.ac;
-    let esc = s.vel || 1; if (s.ir_a && g.nat){ const inf = window.INFO.acciones.find(x => x.id===id && x.a===s.a); if (inf) esc = Math.min(Math.max(inf.velocidad / g.nat, 0.5), 2); }
-    const dur = g.clip.duration, tt = Math.max(0, t - s.a) * esc;
+    const dur = g.clip.duration; let tt = Math.max(0, t - s.a) * (s.vel || 1);
+    if (s.ir_a && g.nat && g.dist !== undefined){ const p = obj[id].position; tt = Math.min(Math.hypot(p.x - g.p0[0], p.z - g.p0[1]), g.dist) / g.nat; }   // tiempo del ciclo = metros recorridos / metros por segundo naturales de esa caminata
     ac.enabled = w > 0; ac.setEffectiveWeight(w); ac.setEffectiveTimeScale(0); ac.time = s.bucle === false ? Math.min(tt, dur - 1e-4) : tt % dur; });   // con el tiempo detenido Three.js no reinicia el ciclo: lo hacemos aquí
   mx.update(0); } }
 window.render = t => { if (tomas.length){ for (const tm of tomas) if (tm.seguir===false && !tm._c){ tl.time(tm.a); tm._c = capturar(tm); } }
@@ -202,7 +207,7 @@ window.render = t => { if (tomas.length){ for (const tm of tomas) if (tm.seguir=
   fade.style.background=(F&&F.color)||'#000'; fade.style.opacity=Math.min(Math.max(o,0),1); };
 await Promise.all(cargas); construirAcciones();
 for (const a of window.INFO.acciones){ const ac = actores.find(x => x.id===a.id); const g = ac && ac.segs.find(x => x.s.a===a.a); if (g && g.nat){ a.natural = +g.nat.toFixed(2); a.factor = +(a.velocidad/g.nat).toFixed(2); a.duracion_ideal = +(a.distancia/g.nat).toFixed(1);
-  if (a.factor>1.4 || a.factor<0.7) window.INFO.avisos.push('«'+a.id+'» camina '+a.distancia+' m en '+a.dur_translado+' s ('+a.velocidad+' m/s) y la animación «'+corto(a.clip)+'» camina natural a '+a.natural+' m/s: se verá '+(a.factor>1?'apurado':'lento')+' o patinando. Mejor unos '+a.duracion_ideal+' s.'); } else if (g && g.s.ir_a) window.INFO.avisos.push('«'+a.id+'»: no se pudo medir la velocidad natural de «'+corto(a.clip)+'» (sin huesos de pies); revisa a ojo que no patine.'); }
+  if (a.factor>1.6 || a.factor<0.6) window.INFO.avisos.push('«'+a.id+'» camina '+a.distancia+' m a '+a.velocidad+' m/s y la animación «'+corto(a.clip)+'» es natural a '+a.natural+' m/s: los pasos se verán '+(a.factor>1?'muy apurados (cámara rápida)':'muy lentos (cámara lenta)')+'. Mejor unos '+a.duracion_ideal+' s, o usa otra animación (Run/Running).'); } else if (g && g.s.ir_a) window.INFO.avisos.push('«'+a.id+'»: no se pudo medir la velocidad natural de «'+corto(a.clip)+'» (sin huesos de pies); revisa a ojo que no patine.'); }
 if (window.DEPURAR){ window.__cam = cam; window.__obj = obj; window.__alto = alto; }
 window.render(0); window.READY = true;
 } catch (e) { window.FALLO = String((e && e.message) || e); }
