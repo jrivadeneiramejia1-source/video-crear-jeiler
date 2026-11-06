@@ -14,10 +14,10 @@ REA (`morluto/rea`, paquete npm `rea-agents`, licencia MIT) es un servidor MCP q
 ## Vacíos de este repo (crear)
 | # | Vacío | Por qué falta | Qué mirar con REA | Estado |
 | --- | --- | --- | --- | --- |
-| 1 | Boca que se mueve con la voz (lip sync) en 2D | Rhubarb se descartó (programa compilado) | Páginas públicas de avatares que hablan en el navegador: qué librería JS o WASM usan | Confirmado |
-| 2 | Estilos 2D más marcados (recorte, acuarela, cuaderno) | Los filtros actuales son suaves | Demos web con esos estilos: qué efectos o shaders usan | Confirmado |
-| 3 | Textos animados y transiciones tipo editor web | Solo está en el plan, sin skill | Editores de video en línea: qué librería animan | Por confirmar |
-| 4 | Animaciones Lottie descargadas | Falta probar y revisar la licencia de cada archivo | Sitios de animaciones gratis: formato y licencia real | Por confirmar |
+| 1 | Boca que se mueve con la voz (lip sync) en 2D | Rhubarb se descartó (programa compilado) | Páginas públicas de avatares que hablan en el navegador: qué librería JS o WASM usan | Hay herramienta libre (lip-sync-engine, MIT); en español sale floja |
+| 2 | Estilos 2D más marcados (recorte, acuarela, cuaderno) | Los filtros actuales son suaves | Demos web con esos estilos: qué efectos o shaders usan | Hay herramienta libre (p5.brush, MIT): acuarela y rayado probados |
+| 3 | Textos animados y transiciones tipo editor web | Solo está en el plan, sin skill | Editores de video en línea: qué librería animan | Ya cubierto por `animacion-2d` (transiciones y tarjetas de texto) |
+| 4 | Animaciones Lottie descargadas | Falta probar y revisar la licencia de cada archivo | Sitios de animaciones gratis: formato y licencia real | Licencia clara (Lottie Simple License); falta probar un archivo |
 
 ## Reglas
 **Legales.** Se mira para aprender la técnica, nunca para copiar. No se copia código, arte, plantillas, fuentes, música ni efectos de pago. No se saltan pagos, cuentas, marcas de agua ni protecciones. Antes de cada objetivo se leen sus términos de uso; si prohíben la ingeniería inversa, solo se observa lo público o se descarta. Lo que se integre sigue `SEGURIDAD.md` y `third-party/LEEME.md` (MIT, Apache-2.0, BSD, CC0, Unlicense se copian con su licencia; GPL/AGPL solo ideas; sin licencia solo enlace).
@@ -37,8 +37,8 @@ REA (`morluto/rea`, paquete npm `rea-agents`, licencia MIT) es un servidor MCP q
 | Fase | Qué se hace | Entrega | Estado |
 | --- | --- | --- | --- |
 | 0 | Preparar REA en la nube | REA funciona sí/no | Hecha |
-| 1 | Confirmar los vacíos 3 y 4 y buscar primero lo libre | Lista final de vacíos | Pendiente |
-| 2 | Páginas web con REA, vacíos 1 a 4 en orden | HALLAZGOS-rea y hoja de muestras | Pendiente |
+| 1 | Confirmar los vacíos 3 y 4 y buscar primero lo libre | Lista final de vacíos | Hecha |
+| 2 | Páginas web con REA, vacíos 1 a 4 en orden | HALLAZGOS-rea y hoja de muestras | Hecha: REA no hizo falta, hubo herramienta libre en cada vacío (ver `HALLAZGOS-rea-2026-11-06.md`) |
 | 3 | Apps (APK/Electron), solo con permiso por cada app | Candidatos extra | Opcional |
 | 4 | Integrar lo que Jeiler elija (rama + PR, licencia en `third-party/`) | PR por repo | Pendiente |
 
