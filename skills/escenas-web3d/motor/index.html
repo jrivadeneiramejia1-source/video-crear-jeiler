@@ -9,6 +9,7 @@ html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { clone as clonarEsqueleto } from 'three/addons/utils/SkeletonUtils.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 try {
@@ -18,12 +19,39 @@ rd.setSize(W,H); rd.setPixelRatio(1); rd.shadowMap.enabled=true; document.body.p
 const sc = new THREE.Scene(); sc.background = new THREE.Color(P.fondo||'#101820');
 if (P.niebla) sc.fog = new THREE.Fog(P.fondo||'#101820', P.niebla[0], P.niebla[1]);
 const fov0 = N.fov||50, hf = 2*Math.atan(Math.tan(fov0*Math.PI/360)*16/9);   // ancho de visión de una escena horizontal 16:9
-const cam = new THREE.PerspectiveCamera(W>=H ? fov0 : 2*Math.atan(Math.tan(hf/2)*H/W)*180/Math.PI, W/H, 0.1, 500);   // en vertical se conserva ese ancho
+const fovV = f => W>=H ? f : 2*Math.atan(Math.tan(2*Math.atan(Math.tan(f*Math.PI/360)*16/9)/2)*H/W)*180/Math.PI;   // en vertical se conserva ese ancho
+const cam = new THREE.PerspectiveCamera(fovV(fov0), W/H, 0.1, 500);
 const L = P.luces||{}; sc.add(new THREE.HemisphereLight(0xffffff, 0x445566, L.ambiente??0.6));
-if (L.entorno==='estudio'){ const pm=new THREE.PMREMGenerator(rd); sc.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; sc.environmentIntensity=L.entorno_fuerza??0.8; pm.dispose(); }   // luz de estudio: da brillo realista a los materiales
+if (L.entorno==='estudio'){ const pm=new THREE.PMREMGenerator(rd); sc.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; sc.environmentIntensity=L.entorno_fuerza??0.8; pm.dispose(); }   // luz de estudio
 const sol = new THREE.DirectionalLight(0xffffff, (L.sol&&L.sol.fuerza)??2.2); sol.position.set(...((L.sol&&L.sol.pos)||[5,8,4]));
-sol.castShadow=true; sol.shadow.mapSize.set(1024,1024); Object.assign(sol.shadow.camera,{left:-12,right:12,top:12,bottom:-12}); sc.add(sol);
-if (P.suelo){ const s=new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.MeshStandardMaterial({color:P.suelo.color||'#1c2733',roughness:.9})); s.rotation.x=-Math.PI/2; s.receiveShadow=true; sc.add(s); }
+sol.castShadow=true; sol.shadow.mapSize.set(2048,2048); Object.assign(sol.shadow.camera,{left:-12,right:12,top:12,bottom:-12}); sc.add(sol);
+for (const l of (L.puntuales||[])){ const pl=new THREE.PointLight(l.color||0xfff1d0, l.fuerza??25, l.alcance??12, 2); pl.position.set(...l.pos); pl.castShadow=!!l.sombra; sc.add(pl); }
+if (P.suelo){ const s=new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.MeshStandardMaterial({color:P.suelo.color||'#1c2733',roughness:.9})); s.rotation.x=-Math.PI/2; s.position.y=P.suelo.y||0; s.receiveShadow=true; sc.add(s); }
+
+// ---------- Cuarto: paredes con huecos exactos para ventanas y puertas ----------
+function construirCuarto(C){
+  const A=C.ancho||6, F=C.fondo||5, Al=C.alto||2.8, G=C.grosor||0.14, ocultas=C.pared_oculta||['frente'], g=new THREE.Group();
+  const mp=new THREE.MeshStandardMaterial({color:C.color_pared||'#efe3cf',roughness:.95}), mm=new THREE.MeshStandardMaterial({color:C.color_marco||'#fafafa',roughness:.6});
+  const mc=new THREE.MeshStandardMaterial({color:'#bfe3ff',roughness:.05,transparent:true,opacity:.22,side:THREE.DoubleSide});
+  const piso=new THREE.Mesh(new THREE.BoxGeometry(A,0.04,F), new THREE.MeshStandardMaterial({color:C.color_piso||'#b58863',roughness:.8})); piso.position.y=-0.0; piso.receiveShadow=true; g.add(piso);
+  const def={fondo:{p:[0,0,-F/2],r:0,len:A}, frente:{p:[0,0,F/2],r:Math.PI,len:A}, izq:{p:[-A/2,0,0],r:Math.PI/2,len:F}, der:{p:[A/2,0,0],r:-Math.PI/2,len:F}};
+  const hay=(pared,k)=>(C[k]||[]).filter(o=>(o.pared||'fondo')===pared);
+  for (const [nombre,d] of Object.entries(def)){ if (ocultas.includes(nombre)) continue;
+    const sh=new THREE.Shape(); sh.moveTo(-d.len/2-G,0); sh.lineTo(d.len/2+G,0); sh.lineTo(d.len/2+G,Al); sh.lineTo(-d.len/2-G,Al); sh.closePath();
+    const huecos=[...hay(nombre,'ventanas').map(o=>({o,v:1})),...hay(nombre,'puertas').map(o=>({o,v:0}))];
+    for (const {o,v} of huecos){ const w=o.ancho||(v?1.4:1), h=o.alto||(v?1.2:2.1), y=o.y??(v?1.0:0), x=o.x||0, ho=new THREE.Path();
+      ho.moveTo(x-w/2,y); ho.lineTo(x-w/2,y+h); ho.lineTo(x+w/2,y+h); ho.lineTo(x+w/2,y); ho.closePath(); sh.holes.push(ho); }
+    const geo=new THREE.ExtrudeGeometry(sh,{depth:G,bevelEnabled:false}); geo.translate(0,0,-G);
+    const w=new THREE.Mesh(geo,mp); w.receiveShadow=true; w.castShadow=true; const grp=new THREE.Group(); grp.position.set(...d.p); grp.rotation.y=d.r; grp.add(w);
+    for (const {o,v} of huecos){ const wd=o.ancho||(v?1.4:1), h=o.alto||(v?1.2:2.1), y=o.y??(v?1.0:0), x=o.x||0, t=0.07, dep=G+0.02;
+      const caja=(bw,bh,px,py)=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(bw,bh,dep),mm); b.position.set(px,py,-G/2); b.castShadow=true; grp.add(b); };
+      caja(wd+2*t,t,x,y+h+t/2); caja(wd+2*t,t,x,y-t/2); caja(t,h,x-wd/2-t/2,y+h/2); caja(t,h,x+wd/2+t/2,y+h/2);
+      if (v){ const cr=new THREE.Mesh(new THREE.PlaneGeometry(wd,h),mc); cr.position.set(x,y+h/2,-G/2); grp.add(cr); caja(0.03,h,x,y+h/2); caja(wd,0.03,x,y+h/2); } }
+    g.add(grp); }
+  sc.add(g); return g;
+}
+if (P.cuarto) construirCuarto(P.cuarto);
+
 const G = {caja:()=>new THREE.BoxGeometry(1,1,1), esfera:()=>new THREE.SphereGeometry(.5,32,20), cilindro:()=>new THREE.CylinderGeometry(.5,.5,1,32), cono:()=>new THREE.ConeGeometry(.5,1,32), toro:()=>new THREE.TorusGeometry(.4,.15,16,48), plano:()=>new THREE.PlaneGeometry(1,1)};
 // Curvas de movimiento: nombres cortos o [x1,y1,x2,y2] (cubic-bezier, como en CSS y los editores de video) o cualquier nombre de GSAP.
 const PRE = {suave:[.25,.1,.25,1], frena:[0,0,.2,1], arranca:[.8,0,1,1], 'arranca-frena':[.4,0,.2,1], pop:[.175,.885,.32,1.275], lineal:[0,0,1,1]};
@@ -31,45 +59,151 @@ const bez = (x1,y1,x2,y2) => t => { if (t<=0) return 0; if (t>=1) return 1; let 
   for (let i=0;i<40;i++){ u=(lo+hi)/2; const x=3*(1-u)*(1-u)*u*x1+3*(1-u)*u*u*x2+u*u*u; if (x<t) lo=u; else hi=u; }
   return 3*(1-u)*(1-u)*u*y1+3*(1-u)*u*u*y2+u*u*u; };
 const E = e => Array.isArray(e) ? bez(...e) : (typeof e==='string' && PRE[e]) ? bez(...PRE[e]) : (e||'power1.inOut');
-const obj = {}, tl = gsap.timeline({paused:true}), cargas = [], mixers = [], cache = {}, gl = new GLTFLoader(); window.INFO = {modelos: []};
+const obj = {}, alto = {}, cabeza = {}, frente = {}, actores = [], tl = gsap.timeline({paused:true}), cargas = [], mixers = [], cache = {}, gl = new GLTFLoader(), fl = new FBXLoader();
+window.INFO = {modelos: [], acciones: [], avisos: []};
 const url = r => '/m/' + r.split('/').map(encodeURIComponent).join('/');   // los archivos salen de la carpeta del proyecto o de la de recursos
+const corto = n => n.split('|').pop();
+const buscarClip = (anims, c) => typeof c === 'number' ? anims[c] : (anims.find(a => a.name === c) || anims.find(a => corto(a.name) === c));   // «Walk» sirve aunque se llame «CharacterArmature|Walk»
+
+// Velocidad a la que «camina» de verdad una animación (m/s): un pie apoyado se mueve hacia atrás a la velocidad del cuerpo. Sirve para que no patine.
+function velocidadNatural(raiz, clip){
+  const pies=[]; raiz.traverse(n=>{ if (n.isBone && /foot|ankle|pie/i.test(n.name) && !/toe|end|tip|ik|control|roll|target|pole/i.test(n.name)) pies.push(n); }); if (pies.length<1) return null;
+  const mx=new THREE.AnimationMixer(raiz), ac=mx.clipAction(clip); ac.play(); const par=raiz.parent, T=clip.duration, n=120, v=new THREE.Vector3(), tr=pies.map(()=>[]);
+  par.updateMatrixWorld(true);
+  for (let i=0;i<n;i++){ ac.time=T*i/n; mx.update(0); raiz.updateMatrixWorld(true); pies.forEach((p,k)=>{ p.getWorldPosition(v); par.worldToLocal(v); tr[k].push([v.x,v.y,v.z]); }); }
+  mx.stopAllAction(); mx.uncacheRoot(raiz); mx.uncacheClip(clip);
+  const vel=[]; for (const t of tr){ const ys=t.map(p=>p[1]), ymin=Math.min(...ys), ymax=Math.max(...ys), umbral=ymin+0.12*(ymax-ymin);
+    const rx=Math.max(...t.map(p=>p[0]))-Math.min(...t.map(p=>p[0])), rz=Math.max(...t.map(p=>p[2]))-Math.min(...t.map(p=>p[2])), ax=rx>rz?0:2; (window.pp=window.pp||[]).push(2*Math.max(rx,rz)/T);
+    for (let i=0;i<n;i++){ const j=(i+1)%n; if (t[i][1]<=umbral && t[j][1]<=umbral){ let d=Math.abs(t[j][ax]-t[i][ax]); vel.push(d/(T/n)); } } }
+  if (vel.length<3) return null; vel.sort((a,b)=>a-b); const med = vel[Math.floor(vel.length/2)];
+  if (window.DEPURAR) window.INFO.depuracion = (window.INFO.depuracion||[]).concat([{clip: clip.name, T, pies: pies.map(p=>p.name), mediana: med, n_apoyo: vel.length, p10: vel[Math.floor(vel.length*.1)], p90: vel[Math.floor(vel.length*.9)], pico_a_pico: window.pp.splice(0)}]);
+  return med;
+}
 async function cargarModelo(o, m, id){
-  if (!cache[o.modelo]) cache[o.modelo] = gl.loadAsync(url(o.modelo)).catch(e => { throw new Error('No se pudo cargar el modelo «'+o.modelo+'»: '+(e.message||e)); });
+  if (!cache[o.modelo]) cache[o.modelo] = (/\.fbx$/i.test(o.modelo) ? fl.loadAsync(url(o.modelo)).then(f => ({scene: f, animations: f.animations})) : gl.loadAsync(url(o.modelo))).catch(e => { throw new Error('No se pudo cargar el modelo «'+o.modelo+'»: '+(e.message||e)); });
   const g = await cache[o.modelo], raiz = clonarEsqueleto(g.scene), nombres = g.animations.map(a => a.name);
-  raiz.traverse(n => { if (n.isMesh){ n.castShadow = true; n.receiveShadow = true; n.frustumCulled = false; } }); m.add(raiz); window.INFO.modelos.push({id, modelo: o.modelo, clips: nombres});
-  if (o.clip !== undefined){ const clip = typeof o.clip === 'number' ? g.animations[o.clip] : g.animations.find(a => a.name === o.clip);
-    if (!clip) throw new Error('El modelo «'+o.modelo+'» no tiene el clip «'+o.clip+'». Clips: '+nombres.join(', '));
+  if (/\.fbx$/i.test(o.modelo)) raiz.traverse(n => { if (n.isMesh){ const arr = Array.isArray(n.material), ms = arr ? n.material : [n.material];
+    const nuevos = ms.map(mt => { if (mt.map) return mt; const c = mt.color.clone().convertLinearToSRGB(); if (o.piel && Math.abs(c.r-c.g)<0.003 && Math.abs(c.g-c.b)<0.003 && c.r>0.005 && c.r<0.06) c.set(o.piel);   // «piel»: este paquete trae cara y manos casi negras (es su diseño); el material gris oscuro se pinta con el tono elegido
+      return new THREE.MeshStandardMaterial({color: c, roughness: o.rugoso ?? 0.7, metalness: 0}); });   // FBX de Blender: el color ya viene lineal; Three.js lo oscurecería dos veces
+    n.material = arr ? nuevos : nuevos[0]; } });
+  raiz.traverse(n => { if (n.isMesh){ n.castShadow = true; n.receiveShadow = true; n.frustumCulled = false; } });
+  if (window.DEPURAR){ const mats=[]; raiz.traverse(n=>{ if(n.isMesh){ (Array.isArray(n.material)?n.material:[n.material]).forEach(mt=>mats.push({malla:n.name,tipo:mt.type,color:mt.color&&mt.color.getHexString(),vc:mt.vertexColors,mapa:!!mt.map,emis:mt.emissive&&mt.emissive.getHexString(),metal:mt.metalness,spec:mt.specular&&mt.specular.getHexString(),attrs:Object.keys(n.geometry.attributes).join(',')})); } }); (window.INFO.depuracion=window.INFO.depuracion||[]).push({mats}); }
+  const claveClip = o.clip !== undefined ? o.clip : (o.acciones && o.acciones.slice().sort((x,y)=>x.a-y.a)[0].clip), clip0 = claveClip !== undefined ? buscarClip(g.animations, claveClip) : null;
+  if (clip0){ const mx0 = new THREE.AnimationMixer(raiz), ac0 = mx0.clipAction(clip0); ac0.play(); ac0.time = 0; mx0.update(0); }   // mide con el personaje ya en su primera pose (algunos FBX cambian de tamaño al animarse)
+  raiz.updateMatrixWorld(true); const caja = new THREE.Box3().setFromObject(raiz, true), alto0 = caja.max.y - caja.min.y;
+  if (clip0) { const mxl = new THREE.AnimationMixer(raiz); mxl.uncacheRoot(raiz); }
+  if (window.DEPURAR) (window.INFO.depuracion=window.INFO.depuracion||[]).push({alto_simple:alto0, alto_preciso:(()=>{ raiz.updateMatrixWorld(true); const b=new THREE.Box3().setFromObject(raiz,true); return b.max.y-b.min.y; })(), escala_raiz: raiz.scale.toArray()});   // altura natural del modelo (sin animar)
+  if (o.alto && alto0 > 0) raiz.scale.multiplyScalar(o.alto / alto0);
+  else if (o.escala) raiz.scale.multiplyScalar(o.escala);
+  else if (/\.fbx$/i.test(o.modelo)) raiz.scale.multiplyScalar(0.005);   // los FBX de Quaternius vienen ≈200 veces más grandes: con 0,005 quedan en metros (sofá 0,95 m, puerta 2,1 m)   // «alto»: metros; deja a todos los personajes a escala, vengan de donde vengan
+  m.add(raiz); m.updateMatrixWorld(true); alto[id] = o.alto || (alto0 * raiz.scale.y);
+  { const bb = new THREE.Box3().setFromObject(raiz, true), corte = bb.min.y + 0.82*(bb.max.y-bb.min.y), v = new THREE.Vector3(), cb = new THREE.Box3();   // tamaño de la cabeza: sirve para encuadrar bien a personajes de cabeza grande
+    raiz.traverse(n => { if (n.isMesh && n.geometry.attributes.position){ const pos = n.geometry.attributes.position; for (let i=0;i<pos.count;i+=2){ n.getVertexPosition(i, v); v.applyMatrix4(n.matrixWorld); if (v.y >= corte) cb.expandByPoint(v); } } });
+    const an = Math.max(cb.max.x-cb.min.x, cb.max.z-cb.min.z); cabeza[id] = isFinite(an) && an>0 ? an : 0.15*alto[id]; } window.INFO.modelos.push({id, modelo: o.modelo, clips: nombres.map(corto), alto_natural: +alto0.toFixed(3)});
+  if (o.clip !== undefined){ const clip = buscarClip(g.animations, o.clip);
+    if (!clip) throw new Error('El modelo «'+o.modelo+'» no tiene el clip «'+o.clip+'». Clips: '+nombres.map(corto).join(', '));
     const mx = new THREE.AnimationMixer(raiz), ac = mx.clipAction(clip); if (o.bucle === false){ ac.setLoop(THREE.LoopOnce, 1); ac.clampWhenFinished = true; } ac.play(); mixers.push({mx, o}); }
+  if (o.acciones){ const mx = new THREE.AnimationMixer(raiz), vn = {}, segs = o.acciones.map(s => { const clip = buscarClip(g.animations, s.clip);
+      if (!clip) throw new Error('«'+id+'»: el clip «'+s.clip+'» no existe en «'+o.modelo+'». Clips: '+nombres.map(corto).join(', '));
+      const c2 = clip.clone(); c2.name = clip.name; const ac = mx.clipAction(c2); if (s.bucle === false){ ac.setLoop(THREE.LoopOnce, 1); ac.clampWhenFinished = true; } ac.play(); ac.weight = 0;
+      if (s.ir_a && !(clip.name in vn)) vn[clip.name] = velocidadNatural(raiz, clip); return {s, ac, nat: vn[clip.name], clip}; });
+    actores.push({id, mx, segs, o}); }
 }
 function cargarImagen(o){ return new Promise((ok, no) => new THREE.TextureLoader().load(url(o.imagen), t => { t.colorSpace = THREE.SRGBColorSpace; ok(t); }, undefined, () => no(new Error('No se pudo cargar la imagen «'+o.imagen+'»')))); }
+
+const giro = 0.35, ang = (a, b) => { let d = (b - a) % (2*Math.PI); if (d > Math.PI) d -= 2*Math.PI; if (d < -Math.PI) d += 2*Math.PI; return a + d; };   // gira por el lado corto
 for (const o of (P.objetos||[])){
   const id = o.id||('o'+Object.keys(obj).length); let m;
   if (o.modelo){ m = new THREE.Group(); cargas.push(cargarModelo(o, m, id)); }
   else { const mat = o.imagen ? new THREE.MeshBasicMaterial({transparent:true, side:THREE.DoubleSide}) : new THREE.MeshStandardMaterial({color:o.color||'#cccccc',roughness:o.rugoso??.55,metalness:o.metal??0});
     m = new THREE.Mesh((G[o.imagen?'plano':o.forma]||G.caja)(), mat); m.castShadow=!o.imagen; m.receiveShadow=true; if (o.imagen) cargas.push(cargarImagen(o).then(t => { mat.map = t; mat.needsUpdate = true; })); }
-  const T = o.tam; m.position.set(...(o.pos||[0,0,0])); m.rotation.set(...(o.rot||[0,0,0])); m.scale.set(...(Array.isArray(T)?T:[T??1,T??1,T??1])); sc.add(m); obj[id]=m; const cur={pos:[...m.position.toArray()],rot:[m.rotation.x,m.rotation.y,m.rotation.z],esc:[...m.scale.toArray()]};
+  const T = o.tam; m.position.set(...(o.pos||[0,0,0])); m.rotation.set(...(o.rot||[0,0,0])); m.scale.set(...(Array.isArray(T)?T:[T??1,T??1,T??1])); sc.add(m); obj[id]=m; frente[id]=o.frente||0;
+  if (!o.modelo) alto[id] = m.scale.y;
+  const cur={pos:[...m.position.toArray()],rot:[m.rotation.x,m.rotation.y,m.rotation.z],esc:[...m.scale.toArray()]};
   for (const a of (o.anim||[]).slice().sort((x,y)=>x.a-y.a)){
-    const tgt={pos:m.position,rot:m.rotation,esc:m.scale}[a.prop], k=a.prop==='rot'?['x','y','z']:['x','y','z'], d=cur[a.prop], h=a.hasta;
+    const tgt={pos:m.position,rot:m.rotation,esc:m.scale}[a.prop], d=cur[a.prop], h=a.hasta;
     tl.fromTo(tgt,{x:d[0],y:d[1],z:d[2]},{x:h[0],y:h[1],z:h[2],duration:a.b-a.a,ease:E(a.ease),immediateRender:false},a.a); cur[a.prop]=[...h];
   }
 }
+
+// Acciones de personaje (se arman cuando ya se cargaron los modelos y se midió cómo camina cada animación):
+//   ir_a: camina de verdad hacia un punto, de frente a la marcha. Sin «b», la duración sale de la velocidad natural de la animación (no patina).
+//   mirar: se voltea hacia otro personaje (id) o un punto [x,z];  mirar_grados: hacia una dirección.
+function construirAcciones(){
+  for (const ac of actores){ const o = ac.o, id = ac.id, m = obj[id]; let px=m.position.x, py=m.position.y, pz=m.position.z, yaw=m.rotation.y, fin = null;
+    for (const g of ac.segs){ const s = g.s;
+      if (s.a === undefined){ if (fin === null) throw new Error('«'+id+'»: la acción «'+s.clip+'» no tiene «a» y la anterior no tiene fin conocido (pon «dura», «bucle»:false o «a»).'); s.a = fin; }   // sin «a»: empieza cuando termina la anterior
+      else if (fin !== null && s.a < fin - 0.05) window.INFO.avisos.push('«'+id+'»: la acción «'+s.clip+'» empieza en '+s.a+' s pero la anterior termina en '+fin.toFixed(2)+' s (se cortaría). Quita «a» o usa '+fin.toFixed(1)+'.');
+      fin = s.dura !== undefined ? s.a + s.dura : (s.bucle === false ? s.a + g.clip.duration/(s.vel||1) : null);
+      if (s.ir_a){ const tx=s.ir_a[0], tz=s.ir_a.length>2?s.ir_a[2]:s.ir_a[1], ty=s.ir_a.length>2?s.ir_a[1]:py, dx=tx-px, dz=tz-pz, dist=Math.hypot(dx,dz);
+        if (dist>0.01){ const y1=ang(yaw, Math.atan2(dx,dz)+frente[id]), t0=s.a+giro*0.6, nat=g.nat, dur = s.b!==undefined ? s.b-t0 : (nat ? dist/(nat*(s.vel||1)) : dist/1.2);
+          tl.fromTo(m.rotation,{y:yaw},{y:y1,duration:giro,ease:'power2.inOut',immediateRender:false},s.a); yaw=y1;
+          tl.fromTo(m.position,{x:px,y:py,z:pz},{x:tx,y:ty,z:tz,duration:dur,ease:E(s.ease||'lineal'),immediateRender:false},t0);
+          window.INFO.acciones.push({id, a:s.a, b:+(t0+dur).toFixed(2), clip:g.clip.name, distancia:+dist.toFixed(2), velocidad:+(dist/dur).toFixed(2), dur_translado:+dur.toFixed(2), b_dado: s.b!==undefined}); fin = t0 + dur; }
+        px=tx; pz=tz; py=ty; }
+      else if (s.mirar_grados!==undefined){ const y1=ang(yaw, s.mirar_grados*Math.PI/180+frente[id]); tl.fromTo(m.rotation,{y:yaw},{y:y1,duration:giro,ease:'power2.inOut',immediateRender:false},s.a); yaw=y1; } } }
+  for (const ac of actores){ const id = ac.id, m = obj[id];
+    for (const g of ac.segs){ const s = g.s; if (s.mirar===undefined) continue;
+      tl.time(s.a+giro); const ya=m.rotation.y, dest = typeof s.mirar==='string' ? obj[s.mirar].position : {x:s.mirar[0], z:s.mirar[s.mirar.length-1]};
+      const y1=ang(ya, Math.atan2(dest.x-m.position.x, dest.z-m.position.z)+frente[id]); tl.time(0);
+      tl.fromTo(m.rotation,{y:ya},{y:y1,duration:giro,ease:'power2.inOut',immediateRender:false},s.a); } }
+  tl.time(0);
+}
+
+// ---------- Cámara: movimientos libres (camara.mov) y tomas con encuadres de cine (tomas) ----------
 const px={x:0,y:0,z:0,lx:0,ly:0,lz:0}, c0=N.pos||[0,2,8], l0=N.mira||[0,1,0]; Object.assign(px,{x:c0[0],y:c0[1],z:c0[2],lx:l0[0],ly:l0[1],lz:l0[2]});
 let cp=[...c0], cl=[...l0];
 for (const v of (N.mov||[]).map(v=>v.corte!==undefined?{...v,a:v.corte,b:v.corte}:v).sort((x,y)=>x.a-y.a)){ const p=v.pos||cp, l=v.mira||cl;
   tl.fromTo(px,{x:cp[0],y:cp[1],z:cp[2],lx:cl[0],ly:cl[1],lz:cl[2]},{x:p[0],y:p[1],z:p[2],lx:l[0],ly:l[1],lz:l[2],duration:v.b-v.a,ease:E(v.ease),immediateRender:false},v.a); cp=[...p]; cl=[...l]; }
+// vis: alto que se ve (en veces la altura del personaje); anchoMin: ancho mínimo visible; y: a qué altura mira; el: grados hacia abajo
+const PLANOS = {general:{vis:2.6,anchoMin:4.2,y:.45,el:10}, cuerpo:{vis:1.35,anchoMin:1.3,y:.5,el:4}, americano:{vis:1.0,anchoMin:.9,y:.62,el:3}, medio:{vis:.72,anchoMin:.62,y:.74,el:3}, 'primer-plano':{vis:.34,anchoMin:.42,y:.9,el:1}, detalle:{vis:.16,anchoMin:.25,y:.9,el:0}};
+const LADOS = {frente:0, der:90, izq:-90, atras:180, 'tres-cuartos':35, 'tres-cuartos-izq':-35};
+const tomas = (P.tomas||[]).slice().sort((x,y)=>x.a-y.a), V3 = THREE.Vector3;
+const yawDe = id => obj[id].rotation.y - frente[id], altoDe = id => alto[id] || 1.7;
+function capturar(tm){ if (tm.punto) return {pos: [new V3(tm.punto[0], 0, tm.punto[2] ?? tm.punto[1])], yaw: [0]}; const ids = tm.objetivos || [tm.objetivo]; return {pos: ids.map(i => obj[i].position.clone()), yaw: ids.map(yawDe)}; }   // «punto»: apunta a un lugar [x,z] en vez de a un personaje
+function camaraToma(tm, t){
+  const ids = tm.punto ? [] : (tm.objetivos || [tm.objetivo]), c = (tm.seguir===false || tm.punto) ? (tm._c || (tm._c = capturar(tm))) : capturar(tm), pl = PLANOS[tm.plano||'medio'] || PLANOS.medio, aspecto = W/H;
+  let Hh = ids.length ? Math.max(...ids.map(altoDe)) : (tm.alto_ref || 2), centro = new V3(), ancho = pl.anchoMin*Hh; const kc = ids.length ? Math.min(Math.max(Math.max(...ids.map(i => (cabeza[i]||0.15*altoDe(i))/(0.15*altoDe(i)))), 1), 3.2) : 1, exp = (tm.plano==='primer-plano'||tm.plano==='detalle') ? 0.9 : (tm.plano==='medio'||tm.plano==='americano') ? 0.5 : 0;
+  c.pos.forEach(p => centro.add(p)); centro.multiplyScalar(1/c.pos.length);
+  if (c.pos.length>1){ let mx=0; for (const a of c.pos) for (const b of c.pos) mx=Math.max(mx,a.distanceTo(b)); ancho = Math.max(ancho, (mx+0.9*Hh*0.5)*1.25); }
+  const pr = Math.min(Math.max((t-tm.a)/Math.max(tm.b-tm.a,0.001),0),1), fv = fovV(tm.fov||fov0), tanV = Math.tan(fv*Math.PI/360);
+  const vis = (tm.vis ?? pl.vis) * Math.pow(kc, exp); ancho *= Math.pow(kc, exp); let dist = Math.max((vis*Hh/2)/tanV, (ancho/2)/(tanV*aspecto)); if (tm.empuja) dist *= 1 - tm.empuja*E('suave')(pr); if (tm.distancia) dist = tm.distancia;
+  const i0 = ids[0], yCara = i0 ? altoDe(i0) - 0.5*(cabeza[i0] || 0.15*altoDe(i0)) : 0.8*Hh, mira = new V3(centro.x, (tm.y !== undefined ? tm.y*Hh : (tm.plano==='primer-plano'||tm.plano==='detalle') ? yCara : pl.y*Hh) + (tm.altura_mira||0), centro.z);   // primer plano: mira al centro de la cabeza real del personaje
+  if (tm.plano==='sobre-hombro' && tm.desde){ const d=obj[tm.desde].position, o=obj[tm.objetivo].position, dir=new V3(o.x-d.x,0,o.z-d.z).normalize(), der=new V3(dir.z,0,-dir.x), hd=altoDe(tm.desde);
+    const p=new V3(d.x,0,d.z).addScaledVector(dir,-0.55).addScaledVector(der,0.3); p.y=hd*0.93; return {p, l:new V3(o.x,altoDe(tm.objetivo)*0.88,o.z), fov:fv}; }
+  let az0 = c.yaw[0]; if (c.pos.length>1){ const d = new V3().subVectors(c.pos[1], c.pos[0]); d.y = 0; if (d.lengthSq()>1e-6){ d.normalize(); az0 = Math.atan2(-d.z, d.x); } }   // dos personajes: de lado, con el primero a la izquierda y el segundo a la derecha
+  const az = (tm.az!==undefined ? tm.az*Math.PI/180 : (az0 + (typeof tm.lado==='number'?tm.lado:(LADOS[tm.lado||'frente']??0))*Math.PI/180)) + (tm.orbita||0)*Math.PI/180*E('suave')(pr);
+  const el = ((tm.angulo==='picado'?28:tm.angulo==='contrapicado'?-14:typeof tm.angulo==='number'?tm.angulo:pl.el))*Math.PI/180;
+  const p = new V3(mira.x + dist*Math.sin(az)*Math.cos(el), mira.y + dist*Math.sin(el), mira.z + dist*Math.cos(az)*Math.cos(el)); if (p.y<0.15) p.y=0.15;
+  return {p, l:mira, fov:fv};
+}
 window.TOTAL = P.duracion; const sub=document.getElementById('sub');
 const fade=document.getElementById('fade'), tit=document.getElementById('tit'), F=P.fundido||null, pop=bez(...PRE.pop), suave=bez(...PRE.suave);
 function titulo(t){ const c=(P.titulos||[]).find(c=>t>=c.a&&t<c.b); if(!c){ tit.textContent=''; tit.style.opacity=0; return; }
   const ent=Math.min(.45,(c.b-c.a)/3), sal=Math.min(.3,(c.b-c.a)/4), pi=Math.min((t-c.a)/ent,1), po=Math.min((c.b-t)/sal,1), k=c.entrada||'sube';
   tit.textContent=c.texto||''; tit.style.color=c.color||'#fff'; tit.style.fontSize=c.tam?c.tam+'px':''; const lug=c.lugar||'centro';
   tit.style.top=lug==='arriba'?'10%':lug==='abajo'?'62%':'42%';
-  tit.style.opacity=suave(pi)*suave(Math.max(po,0)); const y=k==='sube'?(1-suave(pi))*40:0, sc=k==='pop'?.6+.4*pop(pi):1;
-  tit.style.transform=`translateY(${y}px) scale(${sc})`; }
-window.render = t => { tl.time(Math.min(Math.max(t,0),P.duracion),false); cam.position.set(px.x,px.y,px.z); cam.lookAt(px.lx,px.ly,px.lz);
-  const c=(P.cues||[]).find(c=>t>=c.a&&t<c.b); sub.textContent=c?(c.texto||''):''; for (const {mx,o} of mixers) mx.setTime(Math.max(0, t-(o.clip_a||0))*(o.vel||1));
-  rd.render(sc,cam); titulo(t);
+  tit.style.opacity=suave(pi)*suave(Math.max(po,0)); const y=k==='sube'?(1-suave(pi))*40:0, esc=k==='pop'?.6+.4*pop(pi):1;
+  tit.style.transform=`translateY(${y}px) scale(${esc})`; }
+// Mezcla de animaciones por tiempo: cada acción entra con un fundido corto y la anterior sale; así cualquier segundo del video se puede dibujar solo.
+function poner(ac_, t){ for (const {id, mx, segs, o} of ac_){ const mezcla = o.mezcla ?? 0.3;
+  segs.forEach((g, i) => { const s = g.s, sig = segs[i+1], entra = i===0 ? 1 : Math.min(Math.max((t - s.a)/mezcla, 0), 1), sale = sig ? 1 - Math.min(Math.max((t - sig.s.a)/mezcla, 0), 1) : 1, w = entra * sale, ac = g.ac;
+    let esc = s.vel || 1; if (s.ir_a && g.nat){ const inf = window.INFO.acciones.find(x => x.id===id && x.a===s.a); if (inf) esc = Math.min(Math.max(inf.velocidad / g.nat, 0.5), 2); }
+    const dur = g.clip.duration, tt = Math.max(0, t - s.a) * esc;
+    ac.enabled = w > 0; ac.setEffectiveWeight(w); ac.setEffectiveTimeScale(0); ac.time = s.bucle === false ? Math.min(tt, dur - 1e-4) : tt % dur; });   // con el tiempo detenido Three.js no reinicia el ciclo: lo hacemos aquí
+  mx.update(0); } }
+window.render = t => { if (tomas.length){ for (const tm of tomas) if (tm.seguir===false && !tm._c){ tl.time(tm.a); tm._c = capturar(tm); } }
+  tl.time(Math.min(Math.max(t,0),P.duracion),false); cam.position.set(px.x,px.y,px.z); cam.lookAt(px.lx,px.ly,px.lz);
+  const tm = tomas.find(x => t>=x.a && t<x.b); if (tm){ const r = camaraToma(tm, t); cam.position.copy(r.p); cam.lookAt(r.l); if (cam.fov!==r.fov){ cam.fov=r.fov; cam.updateProjectionMatrix(); } } else if (cam.fov!==fovV(fov0)){ cam.fov=fovV(fov0); cam.updateProjectionMatrix(); }
+  const c=(P.cues||[]).find(c=>t>=c.a&&t<c.b); sub.textContent=c?(c.texto||''):'';
+  for (const {mx,o} of mixers) mx.setTime(Math.max(0, t-(o.clip_a||0))*(o.vel||1));
+  poner(actores, t); rd.render(sc,cam); titulo(t);
   let o=0; if (F){ const ent=F.entrada||0, sal=F.salida||0; if (ent>0 && t<ent) o=1-t/ent; if (sal>0 && t>P.duracion-sal) o=Math.max(o,(t-(P.duracion-sal))/sal); }
   fade.style.background=(F&&F.color)||'#000'; fade.style.opacity=Math.min(Math.max(o,0),1); };
-await Promise.all(cargas); window.render(0); window.READY = true;
+await Promise.all(cargas); construirAcciones();
+for (const a of window.INFO.acciones){ const ac = actores.find(x => x.id===a.id); const g = ac && ac.segs.find(x => x.s.a===a.a); if (g && g.nat){ a.natural = +g.nat.toFixed(2); a.factor = +(a.velocidad/g.nat).toFixed(2); a.duracion_ideal = +(a.distancia/g.nat).toFixed(1);
+  if (a.factor>1.4 || a.factor<0.7) window.INFO.avisos.push('«'+a.id+'» camina '+a.distancia+' m en '+a.dur_translado+' s ('+a.velocidad+' m/s) y la animación «'+corto(a.clip)+'» camina natural a '+a.natural+' m/s: se verá '+(a.factor>1?'apurado':'lento')+' o patinando. Mejor unos '+a.duracion_ideal+' s.'); } else if (g && g.s.ir_a) window.INFO.avisos.push('«'+a.id+'»: no se pudo medir la velocidad natural de «'+corto(a.clip)+'» (sin huesos de pies); revisa a ojo que no patine.'); }
+if (window.DEPURAR){ window.__cam = cam; window.__obj = obj; window.__alto = alto; }
+window.render(0); window.READY = true;
 } catch (e) { window.FALLO = String((e && e.message) || e); }
 </script></body></html>

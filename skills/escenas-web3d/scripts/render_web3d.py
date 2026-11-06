@@ -74,7 +74,11 @@ async def main():
         if modo == "verificar":
             for t in (0, total / 2, total - 0.05): await pg.evaluate(f"render({t})")
             print(f"duración {total:.2f} s, {len(pr.get('objetos', []))} objetos | errores de la página: {errs or 'ninguno'}"); ok = not errs
-            for mo in await pg.evaluate("window.INFO.modelos"): print(f"  modelo {mo['id']} ({mo['modelo']}): clips = {', '.join(mo['clips']) or 'ninguno'}")
+            info = await pg.evaluate("window.INFO")
+            for ac in info.get("acciones", []):
+                if "natural" in ac: print(f"  camina {ac['id']} {ac['a']}-{ac['b']} s: {ac['distancia']} m a {ac['velocidad']} m/s (animación natural {ac['natural']} m/s, ajuste x{ac['factor']})")
+            for av in info.get("avisos", []): print("  AVISO:", av)
+            for mo in info["modelos"]: print(f"  modelo {mo['id']} ({mo['modelo']}): alto natural {mo['alto_natural']}; clips = {', '.join(mo['clips']) or 'ninguno'}")
         elif modo == "stills":
             c = pathlib.Path(o["carpeta"]); c.mkdir(exist_ok=True)
             for t in r[2:]: (c / f"t{float(t):06.2f}.png").write_bytes(await cuadro(pg, float(t))); print("guardado", c / f"t{float(t):06.2f}.png")
