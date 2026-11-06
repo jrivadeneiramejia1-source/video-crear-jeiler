@@ -36,3 +36,19 @@ Objetivo: no dibujar todo desde cero; reutilizar personajes, casas, ventanas y m
 **Qué se añadió a `escenas-web3d`:** acciones de personaje con caminata calculada sobre los pies (sin patinar), giros, mirar a otro personaje, mezcla entre animaciones; `cuarto` con paredes, ventanas y puertas; `tomas` con planos de cine que se adaptan al tamaño de cada personaje; carga de FBX; `descargar_paquetes.py` y `catalogo.py` (búsqueda en español).
 
 **Lo que sigue pendiente (se dice sin adornos):** caras con emoción y boca animada (los modelos traen caras fijas; un camino a evaluar es VRM con expresiones, sin probar), sentarse/recoger con alineación exacta, y que una persona mire el movimiento: aquí solo se midió y se vieron cuadros.
+
+## Tercera ronda: aprender a usar mejor lo que ya hay (2026-11-06)
+Pedido: buscar material que enseñe a crear y editar mejor (paso a paso, caminar natural, caras, encuadres) y aplicarlo.
+
+**Qué se encontró:** guías abiertas para agentes (`LottieFiles/motion-design-skill`, `dylantarre/animation-principles`, `kylezantos/design-motion-principles`, `Rylaispirit/cinematic-video-prompt-skill`, todas MIT) y artículos de Wikipedia (caminar, marcha, cortes, planos). Las guías son sobre **animación de interfaces**; sirven los números de anticipación, seguimiento, entrada/salida y estructura de acto como escala de partida, no como ley para personajes. Para cámara solo hay vocabulario, no procedimiento. Los libros de oficio (Thomas y Johnston, Richard Williams) tienen derechos de autor: se nombran para estudiar, no se copian. Wikipedia devolvió límite de peticiones en varias páginas; lo no verificado quedó marcado como «regla práctica».
+
+**REA:** no hizo falta en esta ronda (las fuentes son texto y repositorios; la técnica de caminata ya se había confirmado con REA en la ronda anterior).
+
+**Qué se aplicó (todo medido o probado):**
+- Nueva skill `direccion-de-video`: orden de trabajo con compuertas, reglas de cámara/montaje, movimiento natural, caras, fuentes y lecciones aprendidas.
+- `revisar_proyecto.py`: revisión automática de proyectos (planos repetidos, línea de acción, tomas muy cortas o largas, personajes congelados, subtítulos ilegibles, cara sin boca, ritmo). Probado con proyectos buenos y malos.
+- `escenas-web3d`: pasos por distancia recorrida y arranque/frenado suaves; el ejemplo ahora hace que Leo note a Ana.
+- `animacion-2d`: la boca se mueve al hablar (por sílabas).
+
+**Pendiente:** sincronía de labios con el audio real (candidatos MIT sin probar: HeadTTS, OpenFaceFX, lipsync-engine), expresiones y boca en modelos 3D, y que una persona mire el resultado.
+

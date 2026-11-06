@@ -260,6 +260,11 @@
      "clip": "Idle"
     },
     {
+     "a": 5.0,
+     "clip": "Idle",
+     "mirar": "ana"
+    },
+    {
      "a": 9.9,
      "clip": "Cheer",
      "mirar": "ana",

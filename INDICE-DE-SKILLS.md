@@ -15,6 +15,7 @@
 | ★ **historia-3d** | Una historia en video 3D con orden y compuertas: primero la historia y su mundo, luego los personajes a medida y aprobados, escenario con piezas 3D, tomas y revisión de que el cuento coincida con la imagen. **Probada con un cuento de 32 s.** | Original (usa Kenney y Quaternius, CC0) |
 | ★ **recursos-3d** | Catálogo de recursos 3D gratis y CC0 (personajes, animaciones, muebles, naturaleza, cielos), con lo probado y lo descartado. | Original |
 | ★ **escenas-web3d** | **Historias en una casa con personajes ya hechos** (caminan sin patinar, se voltean, se saludan), cuarto con ventanas y puertas, muebles CC0, encuadres de cine (general, medio, primer plano, de dos), luz de estudio, curvas, fundidos y títulos con Three.js + GSAP; descarga y busca paquetes CC0 de KayKit y Quaternius. Horizontal y vertical. **Probada con una historia de 17 s.** | Original (usa Three.js, MIT, y GSAP, licencia gratuita; ambos solo en la caché local) |
+| ★ **direccion-de-video** | El oficio: orden de trabajo paso a paso con compuertas, reglas de cámara y montaje, movimiento natural (caminar, brazos, giros), caras y boca, más una revisión automática de proyectos (`revisar_proyecto.py`). **Probada con proyectos buenos y malos hechos a propósito.** | Original (resume guías MIT de movimiento y Wikipedia CC BY-SA con atribución) |
 | ★ **clips-ia** | Pedir clips de IA (Kling, Seedance, Veo) con costo y «sí» antes, prueba de 5 s y el mismo personaje. **Sin probar.** | Original |
 | ★ **estudiar-video-referencia** | Sacar la receta de estilo (tiempos, ritmo, colores, sonido) de un video que te gustó, sin copiar su contenido. | Original (idea de `reelmimic`, MIT; código propio) |
 | ★ **video-infantil** | Reglas extra y revisión medible (destellos, ritmo, volumen, velocidad de narración) para videos de niños; cuento de ejemplo. | Original |
@@ -31,7 +32,8 @@
 | infantil | plan-de-video, animacion-2d, voz-sintetica, musica-y-efectos, video-explicativo, video-infantil |
 | clips-ia | plan-de-video, personajes-consistentes, clips-ia |
 | recursos3d | recursos-3d |
-| web3d | plan-de-video, escenas-web3d, voz-sintetica, musica-y-efectos |
+| web3d | plan-de-video, direccion-de-video, escenas-web3d, voz-sintetica, musica-y-efectos |
+| direccion | plan-de-video, direccion-de-video |
 | historia3d | plan-de-video, personajes-consistentes, video-3d, recursos-3d, historia-3d, voz-sintetica, musica-y-efectos |
 | referencia | plan-de-video, estudiar-video-referencia |
 

@@ -6,6 +6,8 @@ description: >-
 
 # Plan de video
 
+> Antes de empezar un video con personajes: `direccion-de-video` (orden de trabajo con compuertas, reglas de cámara y movimiento, y una revisión automática del proyecto).
+
 Antes de dibujar, grabar o gastar créditos: una ficha corta, el camino elegido y el guion medido. Evita rehacer un video entero porque faltaba una pregunta.
 
 ## Reglas

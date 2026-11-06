@@ -13,6 +13,7 @@ Un **motor** que dibuja cada cuadro como un SVG en un navegador sin pantalla (Ch
 - Mirar imágenes sueltas (`stills`/`hoja`) **antes** de renderizar el video completo: renderizar cuesta unos 2 minutos por minuto de video y por formato.
 - No sobrescribe videos existentes. El video sale **sin sonido**: la voz y la música se pegan después (`video-explicativo`, `voz-sintetica`, `musica-y-efectos` o `ffmpeg-skill`).
 - Claude no ve el movimiento: mide y mira cuadros; la fluidez la juzga Jeiler.
+- **Los personajes hablan:** si una escena `personajes` tiene un `dialogo` para un personaje, su boca se abre y cierra por sílabas mientras dura y queda cerrada fuera (parpadean cada ~3,7 s). Probado con 8 cuadros del ejemplo (4 con la boca abierta, 4 cerrada; los 2 posteriores a la frase, cerrada). No sigue el audio real: es por sílabas del texto.
 - Sin 3D ni caras realistas: para eso, las skills de 3D de este repo (cuando existan).
 
 ## Instalar (una vez)

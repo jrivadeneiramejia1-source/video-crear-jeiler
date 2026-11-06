@@ -59,7 +59,9 @@ function icono(nombre, x, y, s, color, op) {
 /* ---------- personaje sencillo (busto): piel, pelo, camisa, ánimo ---------- */
 function personaje(o) {
   const t = o.t || 0, ph = o.ph || 0, sc = o.s || 1, mood = o.mood || 'smile', piel = o.piel || '#E8B98F', pelo = o.pelo || '#3B2A20', camisa = o.camisa || TEMA.acento2;
-  const bl = ((t + ph * 2.3) % 3.7) < 0.13, bob = Math.sin((t + ph) * 1.6) * 2 + (o.bounce || 0);
+  // habla: {a, b, texto, tl}: la boca se abre y cierra con cada sílaba (≈3-7,5 por segundo, abertura distinta en cada una) y la cabeza asiente un poco; entre frases queda cerrada
+  let ab = 0; if (o.habla && o.habla.tl > o.habla.a + 0.12 && o.habla.tl < o.habla.b - 0.2) { const h = o.habla, sil = Math.max(2, (String(h.texto || '').match(/[aeiouáéíóúü]+/gi) || []).length), rate = Math.min(Math.max(sil / Math.max(h.b - h.a - 0.4, 0.5), 3), 7.5), fase = (h.tl - h.a - 0.12) * rate, k = Math.floor(fase), amp = 0.45 + 0.55 * Math.abs((Math.sin(k * 12.9898) * 43758.5453) % 1); ab = Math.sin(Math.PI * Math.min((fase - k) * 1.25, 1)) * amp; }
+  const bl = ((t + ph * 2.3) % 3.7) < 0.13, bob = Math.sin((t + ph) * 1.6) * 2 + (o.bounce || 0) + ab * 2.2;
   let g = `<g transform="translate(${f(o.x)} ${f(o.y + bob * sc)}) scale(${f(sc)})" opacity="${f(o.op === undefined ? 1 : o.op)}">`;
   const estilo = o.pelo_estilo || 'corto';
   if (estilo === 'largo') g += `<path d="M -60 -70 Q -66 -142 0 -144 Q 66 -142 60 -70 Q 78 -8 68 44 Q 40 62 0 58 Q -40 62 -68 44 Q -78 -8 -60 -70 Z" fill="${pelo}"/>`;
@@ -80,6 +82,7 @@ function personaje(o) {
   g += `<path d="${mood === 'worry' ? 'M -31 -80 Q -19 -86 -7 -93 M 7 -93 Q 19 -86 31 -80' : 'M -31 -86 Q -19 -92 -7 -87 M 7 -87 Q 19 -92 31 -86'}" fill="none" stroke="${pelo}" stroke-width="4.6" stroke-linecap="round"/>`;
   g += `<path d="M 0 -62 Q 5 -50 -1 -48" fill="none" stroke="#C48B65" stroke-width="3.2" stroke-linecap="round"/>`;
   if (mood === 'laugh') g += `<path d="M -19 -41 L 19 -41 Q 14 -18 0 -18 Q -14 -18 -19 -41 Z" fill="#8E3B35"/>`;
+  else if (ab > 0.14) g += `<ellipse cx="0" cy="${f(-35 + ab * 3)}" rx="${f(8 + ab * 5)}" ry="${f(2.5 + ab * 10)}" fill="#8E3B35" stroke="${m}" stroke-width="2.4"/>`;   // boca hablando
   else if (mood === 'calm') g += `<path d="M -12 -37 Q 0 -30 12 -37" fill="none" stroke="${m}" stroke-width="4.5" stroke-linecap="round"/>`;
   else if (mood === 'worry') g += `<path d="M -13 -29 Q 0 -40 13 -29" fill="none" stroke="${m}" stroke-width="4.5" stroke-linecap="round"/>`;
   else if (mood === 'surprise') g += `<ellipse cx="0" cy="-31" rx="7" ry="10" fill="#8E3B35"/>`;
@@ -107,7 +110,7 @@ registrarEscena('personajes', (e, tl, c) => {
   let s = fondoDecorado(c.t);
   if (e.suelo !== false) s += `<rect x="0" y="${f(H * .8)}" width="${W}" height="${f(H * .2)}" fill="${TEMA.acento2}" opacity=".18"/>`;
   const ps = e.personajes || [];
-  ps.forEach((p, i) => { const ent = easeOut(seg(tl, .1 + i * .2, .7 + i * .2)); s += personaje(Object.assign({}, p, { x: p.x * W, y: p.y * H + (1 - ent) * 40 * U, s: (p.s || 1) * U * (V ? 1 : 1), t: c.t, ph: i * 1.7, op: ent })); });
+  ps.forEach((p, i) => { const ent = easeOut(seg(tl, .1 + i * .2, .7 + i * .2)), d = (e.dialogo || []).find(d => (d.quien || 0) === i && tl >= d.a && tl <= d.b); s += personaje(Object.assign({}, p, { x: p.x * W, y: p.y * H + (1 - ent) * 40 * U, s: (p.s || 1) * U * (V ? 1 : 1), t: c.t, ph: i * 1.7, op: ent, habla: d ? { a: d.a, b: d.b, texto: d.texto, tl } : null })); });
   (e.objetos || []).forEach(o => { const q = easeOut(seg(tl, o.desde || 0, (o.desde || 0) + .7)); if (q > 0) s += icono(o.icono, o.x * W, o.y * H + (1 - q) * 20 * U, (o.s || 120) * U * (.6 + .4 * q), o.color || TEMA.acento, q); });   // objetos del cielo o del suelo (arcoíris, sol, gotas...)
   (e.dialogo || []).forEach(d => { const p = ps[d.quien || 0]; if (!p) return; const q = seg(tl, d.a, d.a + .4) * (1 - seg(tl, d.b - .3, d.b)); s += globo(clamp(p.x, .25, .75) * W, p.y * H - 200 * U * (p.s || 1) - 40 * U, d.texto, q, 30, p.x * W, p.y * H - 150 * U * (p.s || 1)); });
   if (e.rotulo) s += T(W / 2, H * .13, e.rotulo, 44 * U, 800, TEMA.tinta, 'middle', `opacity="${f(easeOut(seg(tl, .1, .6)))}"`);
