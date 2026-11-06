@@ -5,8 +5,13 @@ html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
 #sub{position:fixed;left:0;right:0;bottom:6%;text-align:center;font:700 clamp(18px,3.4vw,44px)/1.25 Inter,"DejaVu Sans",sans-serif;color:#fff;padding:0 6%;text-shadow:0 2px 6px #000,0 0 14px #000}
 </style></head><body><div id="tit"></div><div id="sub"></div><div id="fade"></div>
 <script src="/gsap/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
 <script type="module">
-import * as THREE from '/three/build/three.module.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as clonarEsqueleto } from 'three/addons/utils/SkeletonUtils.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+try {
 const P = window.PROYECTO, W = P.ancho, H = P.alto, N = (P.camara||{});
 const rd = new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
 rd.setSize(W,H); rd.setPixelRatio(1); rd.shadowMap.enabled=true; document.body.prepend(rd.domElement);
@@ -15,6 +20,7 @@ if (P.niebla) sc.fog = new THREE.Fog(P.fondo||'#101820', P.niebla[0], P.niebla[1
 const fov0 = N.fov||50, hf = 2*Math.atan(Math.tan(fov0*Math.PI/360)*16/9);   // ancho de visión de una escena horizontal 16:9
 const cam = new THREE.PerspectiveCamera(W>=H ? fov0 : 2*Math.atan(Math.tan(hf/2)*H/W)*180/Math.PI, W/H, 0.1, 500);   // en vertical se conserva ese ancho
 const L = P.luces||{}; sc.add(new THREE.HemisphereLight(0xffffff, 0x445566, L.ambiente??0.6));
+if (L.entorno==='estudio'){ const pm=new THREE.PMREMGenerator(rd); sc.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; sc.environmentIntensity=L.entorno_fuerza??0.8; pm.dispose(); }   // luz de estudio: da brillo realista a los materiales
 const sol = new THREE.DirectionalLight(0xffffff, (L.sol&&L.sol.fuerza)??2.2); sol.position.set(...((L.sol&&L.sol.pos)||[5,8,4]));
 sol.castShadow=true; sol.shadow.mapSize.set(1024,1024); Object.assign(sol.shadow.camera,{left:-12,right:12,top:12,bottom:-12}); sc.add(sol);
 if (P.suelo){ const s=new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.MeshStandardMaterial({color:P.suelo.color||'#1c2733',roughness:.9})); s.rotation.x=-Math.PI/2; s.receiveShadow=true; sc.add(s); }
@@ -25,11 +31,23 @@ const bez = (x1,y1,x2,y2) => t => { if (t<=0) return 0; if (t>=1) return 1; let 
   for (let i=0;i<40;i++){ u=(lo+hi)/2; const x=3*(1-u)*(1-u)*u*x1+3*(1-u)*u*u*x2+u*u*u; if (x<t) lo=u; else hi=u; }
   return 3*(1-u)*(1-u)*u*y1+3*(1-u)*u*u*y2+u*u*u; };
 const E = e => Array.isArray(e) ? bez(...e) : (typeof e==='string' && PRE[e]) ? bez(...PRE[e]) : (e||'power1.inOut');
-const obj = {}, tl = gsap.timeline({paused:true}), fin = {};
+const obj = {}, tl = gsap.timeline({paused:true}), cargas = [], mixers = [], cache = {}, gl = new GLTFLoader(); window.INFO = {modelos: []};
+const url = r => '/m/' + r.split('/').map(encodeURIComponent).join('/');   // los archivos salen de la carpeta del proyecto o de la de recursos
+async function cargarModelo(o, m, id){
+  if (!cache[o.modelo]) cache[o.modelo] = gl.loadAsync(url(o.modelo)).catch(e => { throw new Error('No se pudo cargar el modelo «'+o.modelo+'»: '+(e.message||e)); });
+  const g = await cache[o.modelo], raiz = clonarEsqueleto(g.scene), nombres = g.animations.map(a => a.name);
+  raiz.traverse(n => { if (n.isMesh){ n.castShadow = true; n.receiveShadow = true; n.frustumCulled = false; } }); m.add(raiz); window.INFO.modelos.push({id, modelo: o.modelo, clips: nombres});
+  if (o.clip !== undefined){ const clip = typeof o.clip === 'number' ? g.animations[o.clip] : g.animations.find(a => a.name === o.clip);
+    if (!clip) throw new Error('El modelo «'+o.modelo+'» no tiene el clip «'+o.clip+'». Clips: '+nombres.join(', '));
+    const mx = new THREE.AnimationMixer(raiz), ac = mx.clipAction(clip); if (o.bucle === false){ ac.setLoop(THREE.LoopOnce, 1); ac.clampWhenFinished = true; } ac.play(); mixers.push({mx, o}); }
+}
+function cargarImagen(o){ return new Promise((ok, no) => new THREE.TextureLoader().load(url(o.imagen), t => { t.colorSpace = THREE.SRGBColorSpace; ok(t); }, undefined, () => no(new Error('No se pudo cargar la imagen «'+o.imagen+'»')))); }
 for (const o of (P.objetos||[])){
-  const g = (G[o.forma]||G.caja)(), m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({color:o.color||'#cccccc',roughness:o.rugoso??.55,metalness:o.metal??0}));
-  m.castShadow=true; m.receiveShadow=true; m.position.set(...(o.pos||[0,0,0])); m.rotation.set(...(o.rot||[0,0,0])); m.scale.set(...(o.tam||[1,1,1])); sc.add(m); obj[o.id||('o'+Object.keys(obj).length)]=m;
-  const id=o.id||('o'+(Object.keys(obj).length-1)); const cur={pos:[...m.position.toArray()],rot:[m.rotation.x,m.rotation.y,m.rotation.z],esc:[...m.scale.toArray()]};
+  const id = o.id||('o'+Object.keys(obj).length); let m;
+  if (o.modelo){ m = new THREE.Group(); cargas.push(cargarModelo(o, m, id)); }
+  else { const mat = o.imagen ? new THREE.MeshBasicMaterial({transparent:true, side:THREE.DoubleSide}) : new THREE.MeshStandardMaterial({color:o.color||'#cccccc',roughness:o.rugoso??.55,metalness:o.metal??0});
+    m = new THREE.Mesh((G[o.imagen?'plano':o.forma]||G.caja)(), mat); m.castShadow=!o.imagen; m.receiveShadow=true; if (o.imagen) cargas.push(cargarImagen(o).then(t => { mat.map = t; mat.needsUpdate = true; })); }
+  const T = o.tam; m.position.set(...(o.pos||[0,0,0])); m.rotation.set(...(o.rot||[0,0,0])); m.scale.set(...(Array.isArray(T)?T:[T??1,T??1,T??1])); sc.add(m); obj[id]=m; const cur={pos:[...m.position.toArray()],rot:[m.rotation.x,m.rotation.y,m.rotation.z],esc:[...m.scale.toArray()]};
   for (const a of (o.anim||[]).slice().sort((x,y)=>x.a-y.a)){
     const tgt={pos:m.position,rot:m.rotation,esc:m.scale}[a.prop], k=a.prop==='rot'?['x','y','z']:['x','y','z'], d=cur[a.prop], h=a.hasta;
     tl.fromTo(tgt,{x:d[0],y:d[1],z:d[2]},{x:h[0],y:h[1],z:h[2],duration:a.b-a.a,ease:E(a.ease),immediateRender:false},a.a); cur[a.prop]=[...h];
@@ -48,8 +66,10 @@ function titulo(t){ const c=(P.titulos||[]).find(c=>t>=c.a&&t<c.b); if(!c){ tit.
   tit.style.opacity=suave(pi)*suave(Math.max(po,0)); const y=k==='sube'?(1-suave(pi))*40:0, sc=k==='pop'?.6+.4*pop(pi):1;
   tit.style.transform=`translateY(${y}px) scale(${sc})`; }
 window.render = t => { tl.time(Math.min(Math.max(t,0),P.duracion),false); cam.position.set(px.x,px.y,px.z); cam.lookAt(px.lx,px.ly,px.lz);
-  const c=(P.cues||[]).find(c=>t>=c.a&&t<c.b); sub.textContent=c?(c.texto||''):''; rd.render(sc,cam); titulo(t);
+  const c=(P.cues||[]).find(c=>t>=c.a&&t<c.b); sub.textContent=c?(c.texto||''):''; for (const {mx,o} of mixers) mx.setTime(Math.max(0, t-(o.clip_a||0))*(o.vel||1));
+  rd.render(sc,cam); titulo(t);
   let o=0; if (F){ const ent=F.entrada||0, sal=F.salida||0; if (ent>0 && t<ent) o=1-t/ent; if (sal>0 && t>P.duracion-sal) o=Math.max(o,(t-(P.duracion-sal))/sal); }
   fade.style.background=(F&&F.color)||'#000'; fade.style.opacity=Math.min(Math.max(o,0),1); };
-window.render(0); window.READY = true;
+await Promise.all(cargas); window.render(0); window.READY = true;
+} catch (e) { window.FALLO = String((e && e.message) || e); }
 </script></body></html>
