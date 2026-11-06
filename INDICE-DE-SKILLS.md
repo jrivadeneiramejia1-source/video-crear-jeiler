@@ -14,6 +14,7 @@
 | ★ **personajes-consistentes** | Hoja de personaje, paleta, ficha y alarma de colores para que el personaje no cambie entre escenas. | Original |
 | ★ **historia-3d** | Una historia en video 3D con orden y compuertas: primero la historia y su mundo, luego los personajes a medida y aprobados, escenario con piezas 3D, tomas y revisión de que el cuento coincida con la imagen. **Probada con un cuento de 32 s.** | Original (usa Kenney y Quaternius, CC0) |
 | ★ **recursos-3d** | Catálogo de recursos 3D gratis y CC0 (personajes, animaciones, muebles, naturaleza, cielos), con lo probado y lo descartado. | Original |
+| ★ **escenas-web3d** | Escenas 3D ligeras en navegador (formas, luces, sombras, cámara y curvas de movimiento con Three.js + GSAP), horizontal y vertical. **Probada con una escena de 6 s.** | Original (usa Three.js, MIT, y GSAP, licencia gratuita; ambos solo en la caché local) |
 | ★ **clips-ia** | Pedir clips de IA (Kling, Seedance, Veo) con costo y «sí» antes, prueba de 5 s y el mismo personaje. **Sin probar.** | Original |
 | ★ **estudiar-video-referencia** | Sacar la receta de estilo (tiempos, ritmo, colores, sonido) de un video que te gustó, sin copiar su contenido. | Original (idea de `reelmimic`, MIT; código propio) |
 | ★ **video-infantil** | Reglas extra y revisión medible (destellos, ritmo, volumen, velocidad de narración) para videos de niños; cuento de ejemplo. | Original |
@@ -30,6 +31,7 @@
 | infantil | plan-de-video, animacion-2d, voz-sintetica, musica-y-efectos, video-explicativo, video-infantil |
 | clips-ia | plan-de-video, personajes-consistentes, clips-ia |
 | recursos3d | recursos-3d |
+| web3d | plan-de-video, escenas-web3d, voz-sintetica, musica-y-efectos |
 | historia3d | plan-de-video, personajes-consistentes, video-3d, recursos-3d, historia-3d, voz-sintetica, musica-y-efectos |
 | referencia | plan-de-video, estudiar-video-referencia |
 
